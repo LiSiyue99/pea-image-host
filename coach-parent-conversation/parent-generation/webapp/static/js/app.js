@@ -1,23 +1,53 @@
 // JavaScript code will be added here later
 
+// 在页面加载后执行
+document.addEventListener('DOMContentLoaded', () => {
+    // 获取并显示文件列表
+    fetchAndDisplayFiles();
+    
+    // 获取并显示配置
+    fetchAndDisplayConfig();
+    
+    // 绑定生成按钮事件
+    const generateButton = document.getElementById('generate-button');
+    if (generateButton) {
+        generateButton.addEventListener('click', handleGenerateClick);
+    }
+    
+    // 绑定刷新按钮事件
+    const refreshButton = document.getElementById('refresh-files-button');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            console.log("刷新文件列表");
+            fetchAndDisplayFiles();
+        });
+    }
+});
+
 // Function to fetch and display the file list
 async function fetchAndDisplayFiles() {
     const fileListElement = document.getElementById('file-list');
     const loadingElement = document.getElementById('file-list-loading');
 
-    if (!fileListElement || !loadingElement) {
-        console.error("File list elements not found in the DOM.");
+    if (!fileListElement) {
+        console.error("File list element not found in the DOM.");
         return;
     }
+    
+    // 显示加载提示
+    fileListElement.innerHTML = '<li id="file-list-loading">正在刷新文件列表...</li>';
 
     try {
-        const response = await fetch('/api/files');
+        // 添加随机查询参数以避免缓存
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/files?t=${timestamp}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const files = await response.json();
+        console.log("获取到的文件列表:", files);
 
-        // Clear loading message
+        // 清空文件列表
         fileListElement.innerHTML = '';
 
         if (files.length === 0) {
@@ -31,15 +61,15 @@ async function fetchAndDisplayFiles() {
                 link.href = `/api/files/download/${encodedFilename}`;
                 link.textContent = filename;
                 link.classList.add('text-blue-600', 'hover:text-blue-800', 'hover:underline');
-                // Optional: forces download dialog in most browsers
-                // link.setAttribute('download', filename);
+                // 强制浏览器下载文件而非打开
+                link.setAttribute('download', filename);
                 listItem.appendChild(link);
                 fileListElement.appendChild(listItem);
             });
         }
     } catch (error) {
         console.error('Error fetching file list:', error);
-        fileListElement.innerHTML = '<li>加载文件列表失败。</li>';
+        fileListElement.innerHTML = `<li class="text-red-500">加载文件列表失败: ${error.message}</li>`;
     }
 }
 
@@ -876,16 +906,3 @@ async function handleGenerateClick() {
         generateButton.disabled = false;
     }
 }
-
-// --- Initial Load --- 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayFiles();
-    fetchAndDisplayConfig(); // Fetch and display config form structure
-
-    // Setup generate button listener
-    if (generateButton && generateStatus) {
-        generateButton.addEventListener('click', handleGenerateClick);
-    } else {
-         console.error("Generate button or status element not found.");
-    }
-});

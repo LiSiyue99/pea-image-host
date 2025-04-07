@@ -32,7 +32,12 @@
 
         <!-- 文件列表区域 -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">已生成文件</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">已生成文件</h2>
+                <button id="refresh-files-button" class="bg-green-500 hover:bg-green-600 text-white text-sm py-1 px-3 rounded-md">
+                    刷新文件列表
+                </button>
+            </div>
             <div>
                 <ul id="file-list" class="list-disc list-inside space-y-2 text-gray-800">
                     <li id="file-list-loading">加载文件中...</li>

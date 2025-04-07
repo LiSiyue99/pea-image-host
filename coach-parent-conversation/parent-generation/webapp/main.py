@@ -14,21 +14,41 @@ from pydantic import BaseModel, Field, ValidationError, validator
 
 # 获取当前文件所在的目录
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Define output directory relative to BASE_DIR (webapp)
 OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "output"))
-# 确保在Render环境中可以使用临时目录
-if "RENDER" in os.environ:
-    OUTPUT_DIR = os.path.join(os.environ.get("RENDER_ARTIFACTS_DIR", "/tmp"), "output")
-    # 确保输出目录存在
+
+# 确保在Render环境中可以使用合适的目录
+print(f"初始化时使用的输出目录: {OUTPUT_DIR}")
+print(f"环境变量: RENDER = {os.environ.get('RENDER', '未设置')}")
+
+# 确保输出目录存在
+try:
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
+    print(f"确保输出目录存在: {OUTPUT_DIR}")
+except Exception as e:
+    print(f"创建输出目录失败: {e}")
+
 CONFIG_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "configs")) # Config dir path
+# 确保配置目录存在
+try:
+    os.makedirs(CONFIG_DIR, exist_ok=True)
+    print(f"确保配置目录存在: {CONFIG_DIR}")
+except Exception as e:
+    print(f"创建配置目录失败: {e}")
+
 SRC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "src")) # Script dir path
 PARENT_PROFILE_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "parent-profile"))
 
 CONFIG_FILE = os.path.join(CONFIG_DIR, "generation_config.json") # Default config file path
 GENERATOR_SCRIPT = os.path.join(SRC_DIR, "generate_profiles.py") # Generator script path
 PYTHON_EXECUTABLE = sys.executable # Path to current python interpreter
+
+# 打印重要路径
+print(f"Python解释器: {PYTHON_EXECUTABLE}")
+print(f"生成器脚本: {GENERATOR_SCRIPT}")
+print(f"配置文件: {CONFIG_FILE}")
+print(f"家长档案目录: {PARENT_PROFILE_DIR}")
 
 # --- 常量 ---
 COLUMN_ORDER: List[str] = [
@@ -302,37 +322,82 @@ async def get_config_options():
 def list_generated_files():
     """Lists CSV files in the output directory."""
     csv_files = []
+    print(f"正在查找文件，输出目录路径: {OUTPUT_DIR}")
     if not os.path.isdir(OUTPUT_DIR):
         # If output dir doesn't exist, return empty list
+        print(f"警告: 输出目录不存在: {OUTPUT_DIR}")
+        # 尝试创建目录
+        try:
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+            print(f"已创建输出目录: {OUTPUT_DIR}")
+        except Exception as e:
+            print(f"创建输出目录失败: {e}")
         return csv_files
     try:
-        for filename in os.listdir(OUTPUT_DIR):
-            if filename.lower().endswith(".csv") and os.path.isfile(os.path.join(OUTPUT_DIR, filename)):
+        # 列出目录内容
+        dir_contents = os.listdir(OUTPUT_DIR)
+        print(f"目录内容: {dir_contents}")
+        
+        for filename in dir_contents:
+            file_path = os.path.join(OUTPUT_DIR, filename)
+            if filename.lower().endswith(".csv") and os.path.isfile(file_path):
+                print(f"找到CSV文件: {filename}")
                 csv_files.append(filename)
+            else:
+                print(f"跳过非CSV文件或非文件项: {filename}")
+        
         csv_files.sort(reverse=True) # Sort by name, newest first if timestamp is used
+        print(f"排序后的文件列表: {csv_files}")
     except OSError as e:
-        print(f"Error listing files in {OUTPUT_DIR}: {e}")
-        # Optionally raise an HTTPException here, but returning empty might be okay too
-        # raise HTTPException(status_code=500, detail="Error listing files")
+        print(f"列出目录内容时出错 {OUTPUT_DIR}: {e}")
+        # 尝试列出父目录
+        try:
+            parent_dir = os.path.dirname(OUTPUT_DIR)
+            print(f"尝试列出父目录 {parent_dir}: {os.listdir(parent_dir)}")
+        except Exception as sub_e:
+            print(f"列出父目录失败: {sub_e}")
+    except Exception as e:
+        print(f"意外错误: {e}")
+    
     return csv_files
 
 @app.get("/api/files/download/{filename}")
 async def download_file(filename: str):
     """Downloads a specific CSV file."""
+    print(f"请求下载文件: {filename}")
+    
     # Basic security: prevent path traversal
     if "/" in filename or "\\" in filename or ".." in filename:
+        print(f"文件名包含非法字符: {filename}")
         raise HTTPException(status_code=400, detail="Invalid filename.")
 
     file_path = os.path.join(OUTPUT_DIR, filename)
+    print(f"文件完整路径: {file_path}")
 
     if not os.path.isfile(file_path):
+        print(f"文件不存在: {file_path}")
+        # 尝试列出目录内容
+        try:
+            print(f"输出目录内容: {os.listdir(OUTPUT_DIR)}")
+        except Exception as e:
+            print(f"无法列出目录内容: {e}")
         raise HTTPException(status_code=404, detail="File not found.")
+
+    # 检查文件大小和权限
+    try:
+        file_stats = os.stat(file_path)
+        print(f"文件大小: {file_stats.st_size} 字节")
+        print(f"文件权限: {oct(file_stats.st_mode)}")
+    except Exception as e:
+        print(f"获取文件信息失败: {e}")
 
     # Check if the resolved path is still within the intended output directory
     # (Extra safety measure)
     if os.path.commonprefix((os.path.realpath(file_path), OUTPUT_DIR)) != OUTPUT_DIR:
-         raise HTTPException(status_code=403, detail="Access denied.")
+        print(f"安全检查失败: {file_path} 不在 {OUTPUT_DIR} 内")
+        raise HTTPException(status_code=403, detail="Access denied.")
 
+    print(f"准备返回文件: {file_path}")
     return FileResponse(path=file_path, media_type='text/csv', filename=filename)
 
 @app.post("/api/generate")
@@ -340,9 +405,24 @@ async def trigger_generation():
     """Triggers the profile generation script synchronously."""
     # Ensure the config file exists before trying to run
     if not os.path.isfile(CONFIG_FILE):
-        raise HTTPException(status_code=500, detail=f"Configuration file not found: {CONFIG_FILE}")
+        print(f"配置文件不存在: {CONFIG_FILE}")
+        # 尝试创建基本配置文件
+        try:
+            os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
+            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump({"num_profiles": 10, "output_dir": OUTPUT_DIR, "profile_sources_dir": PARENT_PROFILE_DIR}, f, indent=2)
+            print(f"已创建默认配置文件: {CONFIG_FILE}")
+        except Exception as e:
+            print(f"创建默认配置文件失败: {e}")
+            raise HTTPException(status_code=500, detail=f"无法创建配置文件: {e}")
+    
     if not os.path.isfile(GENERATOR_SCRIPT):
+        print(f"生成器脚本不存在: {GENERATOR_SCRIPT}")
         raise HTTPException(status_code=500, detail=f"Generator script not found: {GENERATOR_SCRIPT}")
+
+    # 确保输出目录存在
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    print(f"确保输出目录存在: {OUTPUT_DIR}")
 
     command = [
         PYTHON_EXECUTABLE,
@@ -353,31 +433,34 @@ async def trigger_generation():
 
     try:
         # Run the script synchronously
-        # Use cwd=SRC_DIR if the script relies on relative paths from src
-        # Or adjust paths in the script if needed to be absolute
-        print(f"Running command: {' '.join(command)}")
+        print(f"运行命令: {' '.join(command)}")
         result = subprocess.run(
             command,
             capture_output=True, # Capture stdout/stderr
             text=True, # Decode output as text
             check=False, # Don't raise exception on non-zero exit code automatically
-            # cwd=SRC_DIR # Setting CWD might simplify path handling in the script
-            # It seems the script already uses absolute paths based on its own location, so CWD might not be strictly needed
         )
 
-        print(f"Script STDOUT:\n{result.stdout}")
+        print(f"脚本标准输出:\n{result.stdout}")
         if result.stderr:
-            print(f"Script STDERR:\n{result.stderr}")
+            print(f"脚本错误输出:\n{result.stderr}")
+
+        # 生成后检查输出目录中的文件
+        try:
+            files_after = os.listdir(OUTPUT_DIR)
+            print(f"生成后输出目录内容: {files_after}")
+        except Exception as e:
+            print(f"无法列出生成后的输出目录内容: {e}")
 
         if result.returncode == 0:
-            return JSONResponse(content={"message": "Generation completed successfully!", "output": result.stdout})
+            return JSONResponse(content={"message": "生成成功!", "output": result.stdout})
         else:
             # Return 500 for internal server error if script fails
-            raise HTTPException(status_code=500, detail=f"Generation script failed with exit code {result.returncode}. Error: {result.stderr or result.stdout}")
+            raise HTTPException(status_code=500, detail=f"生成脚本失败，返回码 {result.returncode}. 错误: {result.stderr or result.stdout}")
 
     except Exception as e:
-        print(f"Error running generation script: {e}")
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while running the generator: {e}")
+        print(f"运行生成脚本时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"运行生成器时发生意外错误: {e}")
 
 # 运行命令 (在 webapp 目录下): uvicorn main:app --reload
 if __name__ == "__main__":
