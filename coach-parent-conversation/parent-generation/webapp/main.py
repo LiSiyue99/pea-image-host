@@ -16,6 +16,12 @@ from pydantic import BaseModel, Field, ValidationError, validator
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Define output directory relative to BASE_DIR (webapp)
 OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "output"))
+# 确保在Render环境中可以使用临时目录
+if "RENDER" in os.environ:
+    OUTPUT_DIR = os.path.join(os.environ.get("RENDER_ARTIFACTS_DIR", "/tmp"), "output")
+    # 确保输出目录存在
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    
 CONFIG_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "configs")) # Config dir path
 SRC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "src")) # Script dir path
 PARENT_PROFILE_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "parent-profile"))
