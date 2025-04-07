@@ -1,0 +1,11 @@
+{
+  "num_profiles": 50,
+  "output_dir": "../output",
+  "filename_prefix": "demo2",
+  "profile_sources_dir": "../parent-profile",
+  "fixed_values": {
+    "child_gender": "female"
+  },
+  "distributions": {},
+  "target_percentages": {}
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长档案生成器</title>
+    <!-- Remove local CSS link for now -->
+    <!-- <link href="/static/css/styles.css" rel="stylesheet"> -->
+    <!-- Add Tailwind Play CDN script -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 font-sans">
+    <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">家长档案生成器</h1>
+
+    <div id="content" class="max-w-4xl mx-auto space-y-8">
+        <!-- 配置区域将在这里添加 -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">配置</h2>
+            <div id="config-form-area">
+                <p class="text-gray-500">配置表单将在这里加载...</p>
+            </div>
+        </div>
+
+        <!-- 生成按钮区域 -->
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+             <button id="generate-button" \
+                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                开始生成
+             </button>
+             <p id="generate-status" class="mt-4 text-sm"></p>
+        </div>
+
+        <!-- 文件列表区域 -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">已生成文件</h2>
+            <div>
+                <ul id="file-list" class="list-disc list-inside space-y-2 text-gray-800">
+                    <li id="file-list-loading">加载文件中...</li>
+                </ul>
+             </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html> 
