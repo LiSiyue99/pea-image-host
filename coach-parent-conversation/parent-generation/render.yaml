@@ -3,7 +3,7 @@ services:
     name: parent-profile-generator
     env: python
     buildCommand: pip install -r webapp/requirements.txt
-    startCommand: cd webapp && uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: bash run.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0 
