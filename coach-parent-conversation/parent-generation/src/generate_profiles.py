@@ -33,8 +33,8 @@ COLUMN_TO_FILE_MAP: Dict[str, str] = {
     "complain": "complain",
     "child_gender": "gender",
     "parent_gender": "gender",
-    "parent_personality": "personality",
-    "child_personality": "personality",
+    "parent_personality": "parent_personality",
+    "child_personality": "child_personality",
     "parent_attachment": "attachment",
     "child_attachment": "attachment",
 }

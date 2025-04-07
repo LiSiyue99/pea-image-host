@@ -76,7 +76,7 @@ COLUMN_TO_FILE_MAP: Dict[str, str] = {
     "social_class": "social_class", "child_period": "child_period",
     "family_structure": "family_structure", "parenting": "parenting",
     "complain": "complain", "child_gender": "gender", "parent_gender": "gender",
-    "parent_personality": "personality", "child_personality": "personality",
+    "parent_personality": "parent_personality", "child_personality": "child_personality",
     "parent_attachment": "attachment", "child_attachment": "attachment",
 }
 DataSources = Dict[str, Union[Dict[str, Any], List[Any]]]
@@ -109,22 +109,8 @@ def load_profile_source_data_sync(profile_dir: str) -> DataSources:
                 data = json.load(f)
                 filename = os.path.basename(file_path)
                 if isinstance(data, dict):
-                    if filename == 'complain.json':
-                        flat_options = []
-                        for item in list(data.values()):
-                             if isinstance(item, list): 
-                                flat_options.extend([str(s) for s in item if isinstance(s, str)])
-                             elif isinstance(item, str): 
-                                flat_options.append(item)
-                             elif isinstance(item, dict):
-                                 for sub_item in item.values():
-                                     if isinstance(sub_item, str): 
-                                        flat_options.append(sub_item)
-                                     elif isinstance(sub_item, list): 
-                                        flat_options.extend([str(s) for s in sub_item if isinstance(s, str)])
-                        data_sources[file_key] = flat_options
-                    else:
-                        data_sources[file_key] = data # 存储整个字典
+                    # 不再对complain.json进行特殊处理，保持原始的键值对结构
+                    data_sources[file_key] = data # 存储整个字典
                 elif isinstance(data, list):
                      data_sources[file_key] = data
                 else: 
@@ -304,11 +290,8 @@ async def get_config_options():
                 # 对于字典，提供键作为选项
                  options_data["options"][column] = list(source_data.keys())
             elif isinstance(source_data, list):
-                 # 对于列表（如complain），返回标记或空列表供UI使用
-                 if column == "complain":
-                     options_data["options"][column] = ["(Complain values not suitable for direct selection)"]
-                 else:
-                      options_data["options"][column] = source_data # 如果是列表源，则使用值
+                 # 对于列表（包括complain），直接返回列表内容
+                 options_data["options"][column] = source_data 
             else:
                  options_data["options"][column] = [] # 未知类型
 

@@ -3,9 +3,7 @@
   "output_dir": "../output",
   "filename_prefix": "demo2",
   "profile_sources_dir": "../parent-profile",
-  "fixed_values": {
-    "child_gender": "female"
-  },
+  "fixed_values": {},
   "distributions": {},
   "target_percentages": {}
 }
