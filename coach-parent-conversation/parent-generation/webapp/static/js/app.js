@@ -703,6 +703,7 @@ function createDistributionForm(container, column, distribution) {
     const totalValue = document.createElement('span');
     totalValue.id = `dist-total-${column}`;
     totalValue.classList.add('font-medium');
+    totalValue.textContent = '0.00';
     
     const validateStatus = document.createElement('span');
     validateStatus.id = `dist-status-${column}`;
@@ -1152,6 +1153,8 @@ function createComplainDistributionUI(column, container, distribution) {
     equalDistButton.type = 'button';
     equalDistButton.textContent = '平均分配';
     equalDistButton.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'mb-3', 'mr-2');
+    form.appendChild(equalDistButton);
+    
     equalDistButton.addEventListener('click', () => {
         const inputs = inputsContainer.querySelectorAll('input[type="number"]');
         if (inputs.length > 0) {
@@ -1218,13 +1221,6 @@ function createComplainDistributionUI(column, container, distribution) {
     addButton.type = 'button';
     addButton.textContent = '添加选项';
     addButton.classList.add('mt-2', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm');
-    
-    // 添加按钮行，包含平均分配和添加选项的容器
-    const buttonRow = document.createElement('div');
-    buttonRow.classList.add('flex', 'justify-between', 'items-center', 'mb-3');
-    buttonRow.appendChild(equalDistButton);
-    
-    form.insertBefore(buttonRow, selectContainer);
     
     selectContainer.appendChild(selectLabel);
     selectContainer.appendChild(select);

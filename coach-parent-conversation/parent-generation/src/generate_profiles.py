@@ -222,14 +222,35 @@ def load_and_validate_config(config_path: str, data_sources: DataSources) -> Opt
                 is_dist_valid = False; continue
 
             source_data = data_sources[file_key]
+            
+            # 特殊处理complain列（列表类型数据源）
             if column == 'complain':
-                print(f"错误: 不支持对 'complain' 列进行分布配置，请移除或使用 fixed_values。", file=sys.stderr)
-                is_dist_valid = False; continue
-
+                if not isinstance(source_data, list):
+                    print(f"错误: 列 '{column}' 的源数据不是列表格式，无法应用分布配置。", file=sys.stderr)
+                    is_dist_valid = False; continue
+                
+                # 验证complain列的键是否存在于列表源数据中
+                invalid_keys_in_config = [key for key in options_in_dist_keys if key not in source_data]
+                if invalid_keys_in_config:
+                    print(f"错误: distributions 中列 '{column}' 包含无效键: {invalid_keys_in_config}。"
+                         f" 有效键为列表中的项，跳过此列。", file=sys.stderr)
+                    is_dist_valid = False; continue
+                
+                # 验证权重总和
+                total_weight = sum(weights_float)
+                if not math.isclose(total_weight, 1.0, rel_tol=1e-9):
+                    print(f"错误: distributions {column} 比例和不为1")
+                    is_dist_valid = False; continue
+                
+                # 记录验证后的分布元组
+                processed_distributions[column] = (options_in_dist_keys, weights_float)
+                continue
+                
+            # 处理其他列（字典类型数据源）
             if not isinstance(source_data, dict):
                  print(f"错误: 列 '{column}' 的源数据不是字典格式，无法应用分布配置。", file=sys.stderr)
                  is_dist_valid = False; continue
-
+                 
             valid_source_keys = list(source_data.keys())
             invalid_keys_in_config = [key for key in options_in_dist_keys if key not in valid_source_keys]
             if invalid_keys_in_config:
@@ -260,9 +281,6 @@ def load_and_validate_config(config_path: str, data_sources: DataSources) -> Opt
             if not isinstance(target_dict, dict) or not target_dict:
                 print(f'Error: Value for {column} in target_percentages must be non-empty dict')
                 is_target_valid = False; continue
-            if column == 'complain':
-                print('Error: target_percentages not supported for complain')
-                is_target_valid = False; continue
 
             target_keys = list(target_dict.keys())
             target_weights = list(target_dict.values())
@@ -281,14 +299,31 @@ def load_and_validate_config(config_path: str, data_sources: DataSources) -> Opt
                 is_target_valid = False; continue
 
             file_key = COLUMN_TO_FILE_MAP.get(column)
-            if not file_key or file_key not in data_sources or not isinstance(data_sources[file_key], dict):
-                print(f'Error: Cannot validate keys for {column} in target_percentages, source invalid')
+            if not file_key or file_key not in data_sources:
+                print(f'Error: Cannot validate keys for {column} in target_percentages, source missing')
                 is_target_valid = False; continue
-            source_keys = list(data_sources[file_key].keys())
-            invalid_keys = [k for k in target_keys if k not in source_keys]
-            if invalid_keys:
-                print(f'Error: Invalid keys {invalid_keys} in target_percentages for {column}. Valid: {source_keys}')
+                
+            # 特殊处理complain列（列表类型数据源）
+            if column == 'complain':
+                if not isinstance(data_sources[file_key], list):
+                    print(f'Error: Cannot validate keys for {column} in target_percentages, expected list source')
+                    is_target_valid = False; continue
+                    
+                source_items = data_sources[file_key]  # 列表中的项目
+                invalid_keys = [k for k in target_keys if k not in source_items]
+                if invalid_keys:
+                    print(f'Error: Invalid keys {invalid_keys} in target_percentages for {column}. Valid options are in the complain list.')
+                    is_target_valid = False; continue
+            # 处理其他列（字典类型数据源）
+            elif not isinstance(data_sources[file_key], dict):
+                print(f'Error: Cannot validate keys for {column} in target_percentages, source invalid format')
                 is_target_valid = False; continue
+            else:
+                source_keys = list(data_sources[file_key].keys())
+                invalid_keys = [k for k in target_keys if k not in source_keys]
+                if invalid_keys:
+                    print(f'Error: Invalid keys {invalid_keys} in target_percentages for {column}. Valid: {source_keys}')
+                    is_target_valid = False; continue
 
             processed_targets[column] = (target_keys, weights_float)
 
@@ -326,6 +361,54 @@ def generate_profile_data(
     full_distributions_from_targets: Dict[str, DistributionTuple] = {}
     for column, (target_keys, target_weights) in effective_target_percentages.items():
         file_key = column_to_file_map.get(column)
+        
+        # 特殊处理complain列
+        if column == 'complain':
+            if not file_key or file_key not in data_sources:
+                print(f"Error pre-calculating target dist for {column}: Missing source data.")
+                continue
+            
+            # complain数据源是列表类型
+            if not isinstance(data_sources.get(file_key), list):
+                print(f"Error pre-calculating target dist for {column}: Expected list source data.")
+                continue
+                
+            all_source_keys = data_sources[file_key]  # 直接使用列表项作为"键"
+            other_keys = [key for key in all_source_keys if key not in target_keys]
+            total_target_prob = sum(target_weights)
+            remaining_prob = 1.0 - total_target_prob
+            
+            final_keys = list(target_keys)
+            final_weights = list(target_weights)
+            
+            # 处理剩余概率和键
+            if remaining_prob > 1e-9 and other_keys:
+                prob_per_other = remaining_prob / len(other_keys)
+                final_keys.extend(other_keys)
+                final_weights.extend([prob_per_other] * len(other_keys))
+            elif remaining_prob > 1e-9 and not other_keys:
+                print(f"Warning: Target percentages for {column} sum to {total_target_prob} but cover all keys. Normalizing.")
+                normalization_factor = 1.0 / total_target_prob if total_target_prob > 0 else 0
+                final_weights = [w * normalization_factor for w in target_weights]
+            elif remaining_prob <= 1e-9 and other_keys:
+                print(f"Warning: Target percentages for {column} sum to 1, ignoring other keys: {other_keys}")
+                final_keys.extend(other_keys)
+                final_weights.extend([0.0] * len(other_keys))
+                
+            # 最终检查和存储
+            if final_keys and final_weights and len(final_keys) == len(final_weights):
+                current_sum = sum(final_weights)
+                if not math.isclose(current_sum, 1.0):
+                    norm_factor = 1.0 / current_sum if current_sum > 0 else 0
+                    final_weights = [w * norm_factor for w in final_weights]
+                full_distributions_from_targets[column] = (final_keys, final_weights)
+            else:
+                print(f"Error: Failed to build full distribution for {column} from targets.")
+            
+            # 处理完complain列，继续下一列
+            continue
+        
+        # 处理其他列（字典类型数据源）
         if not file_key or not isinstance(data_sources.get(file_key), dict):
             print(f"Error pre-calculating target dist for {column}: Invalid source data.")
             continue # Should have been caught in validation

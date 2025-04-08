@@ -5,5 +5,12 @@
   "profile_sources_dir": "../parent-profile",
   "fixed_values": {},
   "distributions": {},
-  "target_percentages": {}
+  "target_percentages": {
+    "complain": {
+      "考试焦虑": 0.2,
+      "抑郁状态": 0.3,
+      "网络使用不当": 0.1,
+      "教育期待": 0.3
+    }
+  }
 }

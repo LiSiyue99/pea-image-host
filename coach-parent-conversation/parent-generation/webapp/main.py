@@ -151,9 +151,6 @@ def validate_config_logic(config: ConfigPayload, data_sources: DataSources) -> L
             if col not in COLUMN_ORDER: 
                 errors.append(f"Invalid column '{col}' in distributions")
                 continue
-            if col == 'complain': 
-                errors.append(f"Distributions not supported for complain")
-                continue
             if not isinstance(dist_dict, dict) or not dist_dict: 
                 errors.append(f"Distribution for '{col}' must be non-empty dict")
                 continue
@@ -175,9 +172,6 @@ def validate_config_logic(config: ConfigPayload, data_sources: DataSources) -> L
         for col, target_dict in config.target_percentages.items():
             if col not in COLUMN_ORDER: 
                 errors.append(f"Invalid column '{col}' in target_percentages")
-                continue
-            if col == 'complain': 
-                errors.append(f"Target % not supported for complain")
                 continue
             if not isinstance(target_dict, dict) or not target_dict: 
                 errors.append(f"Target % for '{col}' must be non-empty dict")
