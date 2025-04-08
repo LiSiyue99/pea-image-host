@@ -246,7 +246,7 @@ async function fetchAndDisplayConfig() {
         advancedConfigContainer.classList.add('mb-6');
         
         const advancedSummary = document.createElement('summary');
-        advancedSummary.textContent = '路径配置（高级）';
+        advancedSummary.textContent = '路径配置';
         advancedSummary.classList.add('text-md', 'font-medium', 'text-gray-700', 'cursor-pointer', 'mb-2');
         advancedConfigContainer.appendChild(advancedSummary);
         
@@ -804,7 +804,7 @@ function createTargetPercentageForm(container, column, percentages) {
     
     // 添加说明
     const desc = document.createElement('p');
-    desc.textContent = '设置目标百分比，总和应小于等于1。未指定部分将随机分配。';
+    desc.textContent = '设置目标百分比，总和应小于等于1。指定的选项将按照确切比例生成，剩余比例将在未指定的选项中随机分配（已指定的选项不会参与随机分配）。';
     desc.classList.add('text-sm', 'text-gray-500', 'mb-3');
     form.appendChild(desc);
     
@@ -901,6 +901,65 @@ function createTargetPercentageForm(container, column, percentages) {
     updateTotal();
 }
 
+// 添加临时悬浮通知函数
+function showToast(message, type = 'success', duration = 200) {
+    // 创建通知元素
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    // 修改位置为屏幕中央，并添加样式使其更明显
+    toast.className = 'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 py-3 px-6 rounded-md shadow-xl transition-all duration-500 z-50 font-medium text-md flex items-center justify-center';
+    toast.style.opacity = '0'; // 初始透明度为0
+    toast.style.minWidth = '300px'; // 设置最小宽度
+    toast.style.textAlign = 'center'; // 文字居中
+    
+    // 设置颜色和图标
+    let icon = '';
+    if (type === 'success') {
+        toast.classList.add('bg-green-600', 'text-white');
+        icon = '✓ ';
+    } else if (type === 'error') {
+        toast.classList.add('bg-red-600', 'text-white');
+        icon = '✗ ';
+    } else {
+        toast.classList.add('bg-blue-600', 'text-white');
+        icon = 'ℹ ';
+    }
+    
+    // 添加图标
+    toast.textContent = icon + message;
+    
+    // 创建一个半透明背景覆盖整个屏幕
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-500';
+    overlay.style.opacity = '0';
+    document.body.appendChild(overlay);
+    
+    // 添加到页面
+    document.body.appendChild(toast);
+    
+    // 淡入效果（使用requestAnimationFrame确保DOM更新后再设置透明度）
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            overlay.style.opacity = '1';
+        });
+    });
+    
+    // 定时淡出并移除
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
+        }, 500);
+    }, duration);
+}
+
 // --- Handle Config Save --- (Placeholder)
 async function handleConfigSave(event) {
     event.preventDefault(); // Prevent default form submission
@@ -911,6 +970,9 @@ async function handleConfigSave(event) {
     saveButton.disabled = true;
     saveStatus.textContent = '保存中...';
     saveStatus.className = 'mt-2 text-sm text-gray-600'; // Reset color
+
+    // 保存按钮原始样式类
+    const originalButtonClasses = saveButton.className;
 
     // --- 收集表单数据 --- 
     const formData = new FormData(event.target);
@@ -944,15 +1006,38 @@ async function handleConfigSave(event) {
         }
         
         const result = await response.json();
-        saveStatus.textContent = result.message || '保存成功!';
-        saveStatus.className = 'mt-2 text-sm text-green-600';
+        // 显示更醒目的保存成功消息
+        saveStatus.textContent = '✓ 已保存';
+        saveStatus.className = 'mt-2 text-sm font-medium text-green-600';
+        
+        // 创建淡入淡出动画效果
+        saveStatus.style.transition = 'opacity 0.5s ease-in-out';
+        saveStatus.style.opacity = '1';
+        
+        // 按钮变为成功颜色
+        saveButton.className = 'bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-md transition duration-150 ease-in-out disabled:opacity-50 text-lg';
+        
+        // 显示悬浮通知
+        showToast('配置已成功保存！', 'success', 200);
         
         // 保存成功后重新加载配置显示最新值
         await fetchAndDisplayConfig();
+        
+        // 1秒后淡出消息
+        setTimeout(() => {
+            saveStatus.style.opacity = '0.6';
+        }, 1000);
+        
+        // 2秒后恢复按钮样式
+        setTimeout(() => {
+            saveButton.className = originalButtonClasses;
+        }, 1000);
     } catch (error) {
         console.error('保存配置出错:', error);
         saveStatus.textContent = `保存失败: ${error.message}`;
         saveStatus.className = 'mt-2 text-sm text-red-600';
+        // 错误也用悬浮通知显示
+        showToast(`保存失败: ${error.message}`, 'error', 200);
     } finally { 
         saveButton.disabled = false; 
     }
@@ -1388,7 +1473,7 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     
     // 添加说明
     const desc = document.createElement('p');
-    desc.textContent = '请选择抱怨内容选项设置目标百分比，总和应小于等于1。';
+    desc.textContent = '请选择抱怨内容选项设置目标百分比，总和应小于等于1。指定的选项将按照确切比例生成，剩余比例将在未指定的选项中随机分配（已指定的选项不会参与随机分配）。';
     desc.classList.add('text-sm', 'text-gray-500', 'mb-3');
     form.appendChild(desc);
     

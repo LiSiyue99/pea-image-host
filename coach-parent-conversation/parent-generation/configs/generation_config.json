@@ -1,16 +1,23 @@
 {
-  "num_profiles": 50,
+  "num_profiles": 100,
   "output_dir": "../output",
-  "filename_prefix": "fixtest",
+  "filename_prefix": "siyue",
   "profile_sources_dir": "../parent-profile",
-  "fixed_values": {},
-  "distributions": {},
-  "target_percentages": {
+  "fixed_values": {
+    "parenting": "Permissive Parenting"
+  },
+  "distributions": {
     "complain": {
-      "考试焦虑": 0.2,
-      "抑郁状态": 0.3,
-      "网络使用不当": 0.1,
-      "教育期待": 0.3
+      "网络使用不当": 0.2,
+      "性困扰": 0.2,
+      "性别认同困惑": 0.2,
+      "早醒": 0.2,
+      "睡眠感缺失": 0.2
+    }
+  },
+  "target_percentages": {
+    "parent_attachment": {
+      "secure": 0.1
     }
   }
 }
