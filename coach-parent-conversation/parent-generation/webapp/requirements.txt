@@ -1,7 +1,10 @@
 fastapi
 uvicorn[standard]
+gunicorn
 jinja2
 python-multipart
 aiofiles 
 pydantic
-typing-extensions 
+typing-extensions
+numpy
+pandas 
