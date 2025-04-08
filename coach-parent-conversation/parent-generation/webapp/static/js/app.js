@@ -510,6 +510,9 @@ function createDistributionForm(container, column, distribution) {
     const options = configOptions.options[column] || [];
     if (options.length === 0) return;
     
+    // 初始化optionCount变量
+    let optionCount = 0;
+    
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `dist-form-${column}`;
@@ -632,6 +635,9 @@ function createTargetPercentageForm(container, column, percentages) {
     // 获取该列的所有选项
     const options = configOptions.options[column] || [];
     if (options.length === 0) return;
+    
+    // 初始化optionCount变量
+    let optionCount = 0;
     
     // 创建表单区域
     const form = document.createElement('div');
