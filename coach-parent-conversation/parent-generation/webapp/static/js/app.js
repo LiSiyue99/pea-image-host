@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.getElementById('generate-button');
     if (generateButton) {
         generateButton.addEventListener('click', handleGenerateClick);
+        // 增强生成按钮样式
+        enhanceGenerateButtonStyles();
     }
     
     // 绑定刷新按钮事件
@@ -53,18 +55,72 @@ async function fetchAndDisplayFiles() {
         if (files.length === 0) {
             fileListElement.innerHTML = '<li>尚未生成任何文件。</li>';
         } else {
+            // 按日期分组文件
+            const filesByDate = {};
+            
             files.forEach(filename => {
-                const listItem = document.createElement('li');
-                const link = document.createElement('a');
-                // Encode filename component for URL safety
-                const encodedFilename = encodeURIComponent(filename);
-                link.href = `/api/files/download/${encodedFilename}`;
-                link.textContent = filename;
-                link.classList.add('text-blue-600', 'hover:text-blue-800', 'hover:underline');
-                // 强制浏览器下载文件而非打开
-                link.setAttribute('download', filename);
-                listItem.appendChild(link);
-                fileListElement.appendChild(listItem);
+                // 提取日期信息：假设格式为name_YYMMDDHHMM.csv
+                const dateMatch = filename.match(/_(\d{6})\d{4}\.csv$/);
+                
+                if (dateMatch && dateMatch[1]) {
+                    const dateStr = dateMatch[1];
+                    // 格式化日期为 YY-MM-DD
+                    const formattedDate = `20${dateStr.substring(0, 2)}-${dateStr.substring(2, 4)}-${dateStr.substring(4, 6)}`;
+                    
+                    if (!filesByDate[formattedDate]) {
+                        filesByDate[formattedDate] = [];
+                    }
+                    filesByDate[formattedDate].push(filename);
+                } else {
+                    // 对于不符合格式的文件，放入"其他"分组
+                    if (!filesByDate['其他']) {
+                        filesByDate['其他'] = [];
+                    }
+                    filesByDate['其他'].push(filename);
+                }
+            });
+            
+            // 按日期排序（从新到旧）
+            const sortedDates = Object.keys(filesByDate).sort((a, b) => {
+                if (a === '其他') return 1;
+                if (b === '其他') return -1;
+                return b.localeCompare(a);
+            });
+            
+            // 创建分组展示
+            sortedDates.forEach(date => {
+                const dateGroup = document.createElement('div');
+                dateGroup.classList.add('mb-4');
+                
+                // 创建日期标题
+                const dateHeader = document.createElement('h3');
+                dateHeader.textContent = date;
+                dateHeader.classList.add('text-md', 'font-medium', 'text-gray-700', 'mb-2', 'border-b', 'pb-1');
+                dateGroup.appendChild(dateHeader);
+                
+                // 创建文件列表
+                const dateFileList = document.createElement('ul');
+                dateFileList.classList.add('pl-4');
+                
+                filesByDate[date].forEach(filename => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('mb-1');
+                    
+                    const link = document.createElement('a');
+                    // Encode filename component for URL safety
+                    const encodedFilename = encodeURIComponent(filename);
+                    link.href = `/api/files/download/${encodedFilename}`;
+                    link.textContent = filename;
+                    link.classList.add('text-blue-600', 'hover:text-blue-800', 'hover:underline');
+                    // 强制浏览器下载文件而非打开
+                    link.setAttribute('download', filename);
+                    
+                    listItem.appendChild(link);
+                    dateFileList.appendChild(listItem);
+                });
+                
+                dateGroup.appendChild(dateFileList);
+                fileListElement.appendChild(dateGroup);
             });
         }
     } catch (error) {
@@ -146,31 +202,85 @@ async function fetchAndDisplayConfig() {
         form.id = 'config-form';
         form.addEventListener('submit', handleConfigSave); // Add submit handler
 
-        // Add simple input fields
-        form.appendChild(createInputElement('num_profiles', 'num_profiles', '生成数量:', 'number', configData.num_profiles || 1));
-        form.appendChild(createInputElement('output_dir', 'output_dir', '输出目录:', 'text', configData.output_dir || '../output'));
-        form.appendChild(createInputElement('filename_prefix', 'filename_prefix', '文件名前缀 (可选):', 'text', configData.filename_prefix, 'e.g., experiment1'));
-        form.appendChild(createInputElement('profile_sources_dir', 'profile_sources_dir', '源文件目录:', 'text', configData.profile_sources_dir || '../parent-profile'));
+        // 创建基本配置部分（高亮显示）
+        const basicConfigArea = document.createElement('div');
+        basicConfigArea.classList.add('p-6', 'bg-amber-50', 'rounded-lg', 'border', 'border-amber-200', 'mb-8', 'shadow-sm');
+        
+        // 添加基本配置标题
+        const basicConfigTitle = document.createElement('h3');
+        basicConfigTitle.textContent = '基本配置';
+        basicConfigTitle.classList.add('text-lg', 'font-medium', 'text-amber-800', 'mb-4');
+        basicConfigArea.appendChild(basicConfigTitle);
+        
+        // 添加常用输入字段（生成数量和文件名前缀）
+        const numProfilesInput = createInputElement('num_profiles', 'num_profiles', '生成数量:', 'number', configData.num_profiles || 1);
+        numProfilesInput.classList.add('mb-6');
+        numProfilesInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white');
+        numProfilesInput.querySelector('label').classList.add('text-base', 'text-amber-700');
+        basicConfigArea.appendChild(numProfilesInput);
+        
+        const filenamePrefixInput = createInputElement('filename_prefix', 'filename_prefix', '文件名前缀 (可选):', 'text', configData.filename_prefix, 'e.g., experiment1');
+        filenamePrefixInput.classList.add('mb-2');
+        filenamePrefixInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white');
+        filenamePrefixInput.querySelector('label').classList.add('text-base', 'text-amber-700');
+        basicConfigArea.appendChild(filenamePrefixInput);
+        
+        // 添加提示说明
+        const prefixHelpText = document.createElement('p');
+        prefixHelpText.innerHTML = '提示: 文件名格式将为 <span class="font-medium">前缀_特征-值_日期时间.csv</span>，例如: experiment1_gender-female_2504041134.csv';
+        prefixHelpText.classList.add('text-sm', 'text-gray-500', 'mb-4', 'ml-2');
+        basicConfigArea.appendChild(prefixHelpText);
+        
+        // 将基本配置添加到表单
+        form.appendChild(basicConfigArea);
+        
+        // 创建高级配置折叠区域
+        const advancedConfigContainer = document.createElement('details');
+        advancedConfigContainer.classList.add('mb-6');
+        
+        const advancedSummary = document.createElement('summary');
+        advancedSummary.textContent = '路径配置（高级）';
+        advancedSummary.classList.add('text-md', 'font-medium', 'text-gray-700', 'cursor-pointer', 'mb-2');
+        advancedConfigContainer.appendChild(advancedSummary);
+        
+        // 添加不常用输入字段到折叠区域
+        const advancedConfigContent = document.createElement('div');
+        advancedConfigContent.classList.add('pl-4', 'pt-2', 'border-l-2', 'border-gray-200');
+        
+        advancedConfigContent.appendChild(createInputElement('output_dir', 'output_dir', '输出目录:', 'text', configData.output_dir || '../output'));
+        advancedConfigContent.appendChild(createInputElement('profile_sources_dir', 'profile_sources_dir', '源文件目录:', 'text', configData.profile_sources_dir || '../parent-profile'));
+        
+        // 添加说明文字
+        const advancedHelpText = document.createElement('p');
+        advancedHelpText.textContent = '注意: 除非必要，请勿修改以上路径配置';
+        advancedHelpText.classList.add('text-sm', 'text-gray-500', 'mt-2', 'italic');
+        advancedConfigContent.appendChild(advancedHelpText);
+        
+        advancedConfigContainer.appendChild(advancedConfigContent);
+        form.appendChild(advancedConfigContainer);
 
         // Placeholders for complex sections
         const advancedTitle = document.createElement('h3');
         advancedTitle.textContent = '高级配置';
-        advancedTitle.classList.add('text-lg', 'font-medium', 'text-gray-900', 'mt-6', 'mb-2', 'border-t', 'pt-4');
+        advancedTitle.classList.add('text-lg', 'font-medium', 'text-gray-900', 'mt-6', 'mb-4', 'border-t', 'pt-4');
         form.appendChild(advancedTitle);
 
         const fixedValuesArea = document.createElement('div');
         fixedValuesArea.id = 'fixed-values-area';
-        fixedValuesArea.innerHTML = '<h4 class="font-medium text-gray-700 mb-1">固定值 (Fixed Values)</h4><p class="text-sm text-gray-500 mb-3">为特定列指定固定值 (优先级最高)。</p><div id="fixed-values-inputs"><!-- Inputs added here later --></div>';
+        fixedValuesArea.classList.add('p-4', 'rounded-lg', 'bg-blue-50', 'mb-6', 'border', 'border-blue-200');
+        fixedValuesArea.innerHTML = '<h4 class="font-medium text-blue-800 mb-1">固定值 (Fixed Values)</h4><p class="text-sm text-gray-500 mb-3">为特定列指定固定值 (优先级最高)。</p><div id="fixed-values-inputs"><!-- Inputs added here later --></div>';
         form.appendChild(fixedValuesArea);
 
         const distributionsArea = document.createElement('div');
         distributionsArea.id = 'distributions-area';
-        distributionsArea.innerHTML = '<h4 class="font-medium text-gray-700 mt-4 mb-1">完整分布 (Distributions)</h4><p class="text-sm text-gray-500 mb-3">为特定列的所有选项指定精确比例 (和必须为1)。</p><div id="distributions-inputs"><!-- Inputs added here later --></div>';
+        distributionsArea.classList.add('p-4', 'rounded-lg', 'bg-green-50', 'mb-6', 'border', 'border-green-200');
+        distributionsArea.innerHTML = '<h4 class="font-medium text-green-800 mb-1">完整分布 (Distributions)</h4><p class="text-sm text-gray-500 mb-3">为特定列的所有选项指定精确比例 (和必须为1)。</p><div id="distributions-inputs"><!-- Inputs added here later --></div>';
         form.appendChild(distributionsArea);
 
         const targetPercentagesArea = document.createElement('div');
         targetPercentagesArea.id = 'target-percentages-area';
-        targetPercentagesArea.innerHTML = '<h4 class="font-medium text-gray-700 mt-4 mb-1">目标百分比 (Target Percentages)</h4><p class="text-sm text-gray-500 mb-3">为特定列的部分选项指定目标比例 (剩余随机)。</p><div id="target-percentages-inputs"><!-- Inputs added here later --></div>';
+        targetPercentagesArea.classList.add('p-4', 'rounded-lg', 'bg-purple-50', 'mb-6', 'border', 'border-purple-200');
+        targetPercentagesArea.innerHTML = '<h4 class="font-medium text-purple-800 mb-1">目标百分比 (Target Percentages)</h4><p class="text-sm text-gray-500 mb-3">为特定列的部分选项指定目标比例 (剩余随机)。</p><div id="target-percentages-inputs"><!-- Inputs added here later --></div>';
         form.appendChild(targetPercentagesArea);
 
         // Save Button
@@ -180,7 +290,7 @@ async function fetchAndDisplayConfig() {
         saveButton.type = 'submit';
         saveButton.id = 'save-config-button';
         saveButton.textContent = '保存配置';
-        saveButton.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-md', 'transition', 'duration-150', 'ease-in-out', 'disabled:opacity-50');
+        saveButton.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'font-bold', 'py-3', 'px-6', 'rounded-md', 'transition', 'duration-150', 'ease-in-out', 'disabled:opacity-50', 'text-lg');
         // saveButton.disabled = true; // Enable save button by default now
         saveButtonDiv.appendChild(saveButton);
 
@@ -249,11 +359,11 @@ function addFixedValueRow(container, selectedColumn = '', selectedValue = '') {
     const rowId = `fixed-row-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const row = document.createElement('div');
     row.id = rowId;
-    row.classList.add('flex', 'flex-wrap', 'gap-2', 'mb-2', 'items-center');
+    row.classList.add('flex', 'flex-wrap', 'gap-2', 'mb-2', 'items-center', 'p-2', 'rounded', 'bg-white', 'border', 'border-blue-200');
     
     // 第一个下拉框 - 选择列
     const columnSelect = document.createElement('select');
-    columnSelect.classList.add('rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
+    columnSelect.classList.add('rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring-blue-500', 'sm:text-sm');
     columnSelect.name = `fixed_column_${rowId}`;
     
     // 添加一个空选项
@@ -273,7 +383,7 @@ function addFixedValueRow(container, selectedColumn = '', selectedValue = '') {
     
     // 第二个下拉框 - 选择值（会根据选择的列动态变化）
     const valueSelect = document.createElement('select');
-    valueSelect.classList.add('rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
+    valueSelect.classList.add('rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring-blue-500', 'sm:text-sm');
     valueSelect.name = `fixed_value_${rowId}`;
     
     // 列选择变化时更新值下拉框
@@ -516,7 +626,7 @@ function createDistributionForm(container, column, distribution) {
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `dist-form-${column}`;
-    form.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md');
+    form.classList.add('mb-6', 'p-4', 'border', 'border-green-300', 'rounded-md', 'bg-white', 'shadow-sm');
     
     // 标题和删除按钮
     const header = document.createElement('div');
@@ -524,7 +634,7 @@ function createDistributionForm(container, column, distribution) {
     
     const title = document.createElement('h4');
     title.textContent = `${getColumnDisplayName(column)} 分布`;
-    title.classList.add('font-medium');
+    title.classList.add('font-medium', 'text-green-700');
     
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -537,6 +647,39 @@ function createDistributionForm(container, column, distribution) {
     header.appendChild(title);
     header.appendChild(deleteButton);
     form.appendChild(header);
+    
+    // 添加平均分配按钮
+    const equalDistButton = document.createElement('button');
+    equalDistButton.type = 'button';
+    equalDistButton.textContent = '平均分配';
+    equalDistButton.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'mb-3', 'mr-2');
+    equalDistButton.addEventListener('click', () => {
+        const inputs = inputsContainer.querySelectorAll('input[type="number"]');
+        if (inputs.length > 0) {
+            // 计算基本平均值（不四舍五入）
+            const baseValue = 1 / inputs.length;
+            
+            // 为每个输入框设置基本值
+            inputs.forEach((input, index) => {
+                if (index === inputs.length - 1) {
+                    // 对最后一项进行调整，确保总和为1
+                    let currentSum = 0;
+                    for (let i = 0; i < inputs.length - 1; i++) {
+                        currentSum += parseFloat(inputs[i].value);
+                    }
+                    // 最后一项 = 1 - 前面所有项的和
+                    const lastValue = Math.max(0, Math.min(1, 1 - currentSum)).toFixed(2);
+                    input.value = lastValue;
+                } else {
+                    // 非最后一项使用基本平均值，保留两位小数
+                    input.value = baseValue.toFixed(2);
+                }
+            });
+            
+            updateTotal();
+        }
+    });
+    form.appendChild(equalDistButton);
     
     // 创建每个选项的输入
     const inputsContainer = document.createElement('div');
@@ -561,16 +704,6 @@ function createDistributionForm(container, column, distribution) {
     totalRow.appendChild(totalLabel);
     totalRow.appendChild(totalValue);
     totalRow.appendChild(validateStatus);
-    
-    // 添加已有的选项
-    if (distribution) {
-        Object.keys(distribution).forEach(option => {
-            if (optionCount < 5) {
-                addOptionToDistribution(option, distribution[option]);
-                optionCount++;
-            }
-        });
-    }
     
     // 更新总计函数
     function updateTotal() {
@@ -597,30 +730,30 @@ function createDistributionForm(container, column, distribution) {
     }
     
     // 添加所有选项的输入框
-        options.forEach(option => {
-            const row = document.createElement('div');
+    options.forEach(option => {
+        const row = document.createElement('div');
         row.classList.add('flex', 'items-center');
-            
-            const label = document.createElement('label');
-            label.textContent = option;
-            label.classList.add('flex-1', 'text-sm');
-            
-            const input = document.createElement('input');
-            input.type = 'number';
+        
+        const label = document.createElement('label');
+        label.textContent = option;
+        label.classList.add('flex-1', 'text-sm');
+        
+        const input = document.createElement('input');
+        input.type = 'number';
         input.name = `dist_${column}_${option}`;
-            input.min = '0';
-            input.max = '1';
+        input.min = '0';
+        input.max = '1';
         input.step = '0.01';
         input.value = distribution[option] || '0';
         input.classList.add('w-20', 'ml-2', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
         
         // 输入变化时更新总计
         input.addEventListener('input', updateTotal);
-            
-            row.appendChild(label);
-            row.appendChild(input);
-            inputsContainer.appendChild(row);
-        });
+        
+        row.appendChild(label);
+        row.appendChild(input);
+        inputsContainer.appendChild(row);
+    });
     
     form.appendChild(inputsContainer);
     form.appendChild(totalRow);
@@ -639,7 +772,7 @@ function createTargetPercentageForm(container, column, percentages) {
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `target-form-${column}`;
-    form.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md');
+    form.classList.add('mb-6', 'p-4', 'border', 'border-purple-300', 'rounded-md', 'bg-white', 'shadow-sm');
     
     // 标题和删除按钮
     const header = document.createElement('div');
@@ -647,7 +780,7 @@ function createTargetPercentageForm(container, column, percentages) {
     
     const title = document.createElement('h4');
     title.textContent = `${getColumnDisplayName(column)} 目标百分比`;
-    title.classList.add('font-medium');
+    title.classList.add('font-medium', 'text-purple-700');
     
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -661,44 +794,15 @@ function createTargetPercentageForm(container, column, percentages) {
     header.appendChild(deleteButton);
     form.appendChild(header);
     
+    // 添加说明
+    const desc = document.createElement('p');
+    desc.textContent = '设置目标百分比，总和应小于等于1。未指定部分将随机分配。';
+    desc.classList.add('text-sm', 'text-gray-500', 'mb-3');
+    form.appendChild(desc);
+    
     // 创建每个选项的输入
     const inputsContainer = document.createElement('div');
     inputsContainer.classList.add('space-y-2');
-    
-    // 添加选项选择区域
-    const selectContainer = document.createElement('div');
-    selectContainer.classList.add('mb-4');
-    
-    const selectLabel = document.createElement('div');
-    selectLabel.textContent = '选择选项：';
-    selectLabel.classList.add('text-sm', 'font-medium', 'mb-2');
-    
-    const select = document.createElement('select');
-    select.classList.add('w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
-    
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = `-- 选择${columnTranslations[column] || column}选项 --`;
-    select.appendChild(defaultOption);
-    
-    // 添加所有选项到下拉列表
-    options.forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option;
-        optionElement.textContent = option;
-        select.appendChild(optionElement);
-    });
-    
-    // 添加按钮
-    const addButton = document.createElement('button');
-    addButton.type = 'button';
-    addButton.textContent = '添加选项';
-    addButton.classList.add('mt-2', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm');
-    
-    selectContainer.appendChild(selectLabel);
-    selectContainer.appendChild(select);
-    selectContainer.appendChild(addButton);
-    form.appendChild(selectContainer);
     
     // 总计和校验
     const totalRow = document.createElement('div');
@@ -728,20 +832,6 @@ function createTargetPercentageForm(container, column, percentages) {
     helpText.textContent = '注意: 目标百分比的和可以小于1，未指定部分将随机分配';
     helpText.classList.add('mt-2', 'text-xs', 'text-gray-500', 'italic');
     
-    // 添加已有的选项
-    if (percentages) {
-        Object.keys(percentages).forEach(option => {
-            addOptionToTargetPercentage(option, percentages[option]);
-            
-            // 禁用已添加的选项
-            Array.from(select.options).forEach(optElement => {
-                if (optElement.value === option) {
-                    optElement.disabled = true;
-                }
-            });
-        });
-    }
-    
     // 更新总计函数
     function updateTotal() {
         const inputs = inputsContainer.querySelectorAll('input[type="number"]');
@@ -766,8 +856,8 @@ function createTargetPercentageForm(container, column, percentages) {
         }
     }
     
-    // 添加选项到目标百分比列表的函数
-    function addOptionToTargetPercentage(option, percentage) {
+    // 添加所有选项的输入框
+    options.forEach(option => {
         const row = document.createElement('div');
         row.classList.add('flex', 'items-center', 'mb-2');
         
@@ -782,55 +872,15 @@ function createTargetPercentageForm(container, column, percentages) {
         input.min = '0';
         input.max = '1';
         input.step = '0.01';
-        input.value = percentage || '0';
+        input.value = percentages[option] || '0';
         input.classList.add('w-20', 'ml-2', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
         
         // 输入变化时更新总计
         input.addEventListener('input', updateTotal);
         
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.innerHTML = '&times;';
-        removeButton.classList.add('ml-2', 'text-red-500', 'font-bold');
-        removeButton.addEventListener('click', () => {
-            row.remove();
-            
-            // 重新启用被移除的选项
-            Array.from(select.options).forEach(optElement => {
-                if (optElement.value === option) {
-                    optElement.disabled = false;
-                }
-            });
-            
-            updateTotal();
-        });
-        
         row.appendChild(label);
         row.appendChild(input);
-        row.appendChild(removeButton);
         inputsContainer.appendChild(row);
-        
-        updateTotal();
-    }
-    
-    // 添加按钮点击事件
-    addButton.addEventListener('click', () => {
-        const selectedOption = select.value;
-        
-        if (!selectedOption) return;
-        
-        // 添加选项
-        addOptionToTargetPercentage(selectedOption, 0);
-        
-        // 禁用已添加的选项
-        Array.from(select.options).forEach(option => {
-            if (option.value === selectedOption) {
-                option.disabled = true;
-            }
-        });
-        
-        // 重置选择
-        select.value = '';
     });
     
     // 将容器添加到表单
@@ -838,6 +888,9 @@ function createTargetPercentageForm(container, column, percentages) {
     form.appendChild(totalRow);
     form.appendChild(helpText);
     container.appendChild(form);
+    
+    // 初始更新总计
+    updateTotal();
 }
 
 // --- Handle Config Save --- (Placeholder)
@@ -1004,6 +1057,49 @@ function collectTargetPercentages() {
 const generateButton = document.getElementById('generate-button');
 const generateStatus = document.getElementById('generate-status');
 
+// 添加样式增强函数
+function enhanceGenerateButtonStyles() {
+    if (!generateButton) return;
+    
+    // 增强生成按钮的样式
+    generateButton.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white', 'font-bold', 'py-4', 'px-8', 'rounded-lg', 'shadow-md', 'transition', 'duration-150', 'ease-in-out', 'text-lg', 'w-full', 'max-w-md');
+    generateButton.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'py-2', 'px-4', 'rounded-md');
+    
+    // 创建一个容器来美化布局
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('flex', 'flex-col', 'items-center', 'justify-center', 'my-8', 'p-6', 'bg-amber-50', 'rounded-lg', 'border', 'border-amber-200');
+    
+    // 添加说明文字
+    const generateTitle = document.createElement('h3');
+    generateTitle.textContent = '生成档案数据';
+    generateTitle.classList.add('text-xl', 'font-medium', 'text-amber-800', 'mb-4', 'self-start');
+    
+    const generateDesc = document.createElement('p');
+    generateDesc.textContent = '点击下方按钮，根据当前配置生成家长档案数据';
+    generateDesc.classList.add('text-gray-600', 'mb-4', 'self-start');
+    
+    // 获取生成按钮的父元素
+    const parent = generateButton.parentElement;
+    
+    // 将生成状态添加到容器
+    if (generateStatus) {
+        generateStatus.classList.add('mt-4', 'text-center');
+        buttonContainer.appendChild(generateTitle);
+        buttonContainer.appendChild(generateDesc);
+        buttonContainer.appendChild(generateButton);
+        buttonContainer.appendChild(generateStatus);
+    } else {
+        buttonContainer.appendChild(generateTitle);
+        buttonContainer.appendChild(generateDesc);
+        buttonContainer.appendChild(generateButton);
+    }
+    
+    // 替换原来的按钮
+    if (parent) {
+        parent.replaceChild(buttonContainer, generateButton);
+    }
+}
+
 // 修改生成按钮处理函数，添加自动刷新文件列表
 async function handleGenerateClick() {
     if (!generateButton || !generateStatus) return;
@@ -1058,7 +1154,7 @@ function createComplainDistributionUI(column, container, distribution) {
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `dist-form-${column}`;
-    form.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md');
+    form.classList.add('mb-6', 'p-4', 'border', 'border-green-300', 'rounded-md', 'bg-white', 'shadow-sm');
     
     // 标题和删除按钮
     const header = document.createElement('div');
@@ -1066,7 +1162,7 @@ function createComplainDistributionUI(column, container, distribution) {
     
     const title = document.createElement('h4');
     title.textContent = `${getColumnDisplayName(column)} 分布`;
-    title.classList.add('font-medium');
+    title.classList.add('font-medium', 'text-green-700');
     
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -1090,6 +1186,38 @@ function createComplainDistributionUI(column, container, distribution) {
     const inputsContainer = document.createElement('div');
     inputsContainer.classList.add('space-y-2', 'my-3');
     form.appendChild(inputsContainer);
+    
+    // 添加平均分配按钮
+    const equalDistButton = document.createElement('button');
+    equalDistButton.type = 'button';
+    equalDistButton.textContent = '平均分配';
+    equalDistButton.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'mb-3', 'mr-2');
+    equalDistButton.addEventListener('click', () => {
+        const inputs = inputsContainer.querySelectorAll('input[type="number"]');
+        if (inputs.length > 0) {
+            // 计算基本平均值（不四舍五入）
+            const baseValue = 1 / inputs.length;
+            
+            // 为每个输入框设置基本值
+            inputs.forEach((input, index) => {
+                if (index === inputs.length - 1) {
+                    // 对最后一项进行调整，确保总和为1
+                    let currentSum = 0;
+                    for (let i = 0; i < inputs.length - 1; i++) {
+                        currentSum += parseFloat(inputs[i].value);
+                    }
+                    // 最后一项 = 1 - 前面所有项的和
+                    const lastValue = Math.max(0, Math.min(1, 1 - currentSum)).toFixed(2);
+                    input.value = lastValue;
+                } else {
+                    // 非最后一项使用基本平均值，保留两位小数
+                    input.value = baseValue.toFixed(2);
+                }
+            });
+            
+            updateTotal();
+        }
+    });
     
     // 添加下拉选择
     const selectContainer = document.createElement('div');
@@ -1130,6 +1258,13 @@ function createComplainDistributionUI(column, container, distribution) {
     addButton.type = 'button';
     addButton.textContent = '添加选项';
     addButton.classList.add('mt-2', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm');
+    
+    // 添加按钮行，包含平均分配和添加选项的容器
+    const buttonRow = document.createElement('div');
+    buttonRow.classList.add('flex', 'justify-between', 'items-center', 'mb-3');
+    buttonRow.appendChild(equalDistButton);
+    
+    form.insertBefore(buttonRow, selectContainer);
     
     selectContainer.appendChild(selectLabel);
     selectContainer.appendChild(select);
@@ -1273,7 +1408,7 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `target-form-${column}`;
-    form.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md');
+    form.classList.add('mb-6', 'p-4', 'border', 'border-purple-300', 'rounded-md', 'bg-white', 'shadow-sm');
     
     // 标题和删除按钮
     const header = document.createElement('div');
@@ -1281,7 +1416,7 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     
     const title = document.createElement('h4');
     title.textContent = `${getColumnDisplayName(column)} 目标百分比`;
-    title.classList.add('font-medium');
+    title.classList.add('font-medium', 'text-purple-700');
     
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -1485,3 +1620,4 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     form.appendChild(helpText);
     container.appendChild(form);
 }
+    

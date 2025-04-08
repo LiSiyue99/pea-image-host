@@ -1,7 +1,7 @@
 {
   "num_profiles": 50,
   "output_dir": "../output",
-  "filename_prefix": "demo2",
+  "filename_prefix": "fixtest",
   "profile_sources_dir": "../parent-profile",
   "fixed_values": {},
   "distributions": {},
