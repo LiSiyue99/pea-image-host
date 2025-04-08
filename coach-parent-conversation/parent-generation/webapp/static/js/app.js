@@ -2,6 +2,8 @@
 
 // 在页面加载后执行
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('页面加载完成, 初始化应用...');
+    
     // 获取并显示文件列表
     fetchAndDisplayFiles();
     
@@ -11,9 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 绑定生成按钮事件
     const generateButton = document.getElementById('generate-button');
     if (generateButton) {
+        console.log('找到生成按钮，绑定事件');
         generateButton.addEventListener('click', handleGenerateClick);
-        // 增强生成按钮样式
-        enhanceGenerateButtonStyles();
+        
+        // 按钮样式已在HTML中设置，无需再重复设置
+        
+        // 设置按钮区域样式已在HTML中完成，无需再修改
+    } else {
+        console.error('未找到生成按钮元素!');
     }
     
     // 绑定刷新按钮事件
@@ -204,25 +211,25 @@ async function fetchAndDisplayConfig() {
 
         // 创建基本配置部分（高亮显示）
         const basicConfigArea = document.createElement('div');
-        basicConfigArea.classList.add('p-6', 'bg-amber-50', 'rounded-lg', 'border', 'border-amber-200', 'mb-8', 'shadow-sm');
+        basicConfigArea.classList.add('p-6', 'bg-green-50', 'rounded-lg', 'border', 'border-green-200', 'mb-8', 'shadow-sm');
         
         // 添加基本配置标题
         const basicConfigTitle = document.createElement('h3');
         basicConfigTitle.textContent = '基本配置';
-        basicConfigTitle.classList.add('text-lg', 'font-medium', 'text-amber-800', 'mb-4');
+        basicConfigTitle.classList.add('text-lg', 'font-medium', 'text-green-800', 'mb-4');
         basicConfigArea.appendChild(basicConfigTitle);
         
         // 添加常用输入字段（生成数量和文件名前缀）
         const numProfilesInput = createInputElement('num_profiles', 'num_profiles', '生成数量:', 'number', configData.num_profiles || 1);
         numProfilesInput.classList.add('mb-6');
-        numProfilesInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white');
-        numProfilesInput.querySelector('label').classList.add('text-base', 'text-amber-700');
+        numProfilesInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white', 'border-green-300');
+        numProfilesInput.querySelector('label').classList.add('text-base', 'text-green-700');
         basicConfigArea.appendChild(numProfilesInput);
         
         const filenamePrefixInput = createInputElement('filename_prefix', 'filename_prefix', '文件名前缀 (可选):', 'text', configData.filename_prefix, 'e.g., experiment1');
         filenamePrefixInput.classList.add('mb-2');
-        filenamePrefixInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white');
-        filenamePrefixInput.querySelector('label').classList.add('text-base', 'text-amber-700');
+        filenamePrefixInput.querySelector('input').classList.add('text-lg', 'font-medium', 'h-12', 'bg-white', 'border-green-300');
+        filenamePrefixInput.querySelector('label').classList.add('text-base', 'text-green-700');
         basicConfigArea.appendChild(filenamePrefixInput);
         
         // 添加提示说明
@@ -1054,55 +1061,15 @@ function collectTargetPercentages() {
 }
 
 // --- Generate Button Functionality ---
-const generateButton = document.getElementById('generate-button');
-const generateStatus = document.getElementById('generate-status');
-
-// 添加样式增强函数
-function enhanceGenerateButtonStyles() {
-    if (!generateButton) return;
-    
-    // 增强生成按钮的样式
-    generateButton.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white', 'font-bold', 'py-4', 'px-8', 'rounded-lg', 'shadow-md', 'transition', 'duration-150', 'ease-in-out', 'text-lg', 'w-full', 'max-w-md');
-    generateButton.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'py-2', 'px-4', 'rounded-md');
-    
-    // 创建一个容器来美化布局
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('flex', 'flex-col', 'items-center', 'justify-center', 'my-8', 'p-6', 'bg-amber-50', 'rounded-lg', 'border', 'border-amber-200');
-    
-    // 添加说明文字
-    const generateTitle = document.createElement('h3');
-    generateTitle.textContent = '生成档案数据';
-    generateTitle.classList.add('text-xl', 'font-medium', 'text-amber-800', 'mb-4', 'self-start');
-    
-    const generateDesc = document.createElement('p');
-    generateDesc.textContent = '点击下方按钮，根据当前配置生成家长档案数据';
-    generateDesc.classList.add('text-gray-600', 'mb-4', 'self-start');
-    
-    // 获取生成按钮的父元素
-    const parent = generateButton.parentElement;
-    
-    // 将生成状态添加到容器
-    if (generateStatus) {
-        generateStatus.classList.add('mt-4', 'text-center');
-        buttonContainer.appendChild(generateTitle);
-        buttonContainer.appendChild(generateDesc);
-        buttonContainer.appendChild(generateButton);
-        buttonContainer.appendChild(generateStatus);
-    } else {
-        buttonContainer.appendChild(generateTitle);
-        buttonContainer.appendChild(generateDesc);
-        buttonContainer.appendChild(generateButton);
-    }
-    
-    // 替换原来的按钮
-    if (parent) {
-        parent.replaceChild(buttonContainer, generateButton);
-    }
-}
-
 // 修改生成按钮处理函数，添加自动刷新文件列表
 async function handleGenerateClick() {
-    if (!generateButton || !generateStatus) return;
+    const generateButton = document.getElementById('generate-button');
+    const generateStatus = document.getElementById('generate-status');
+    
+    if (!generateButton || !generateStatus) {
+        console.error('生成按钮或状态元素不存在');
+        return;
+    }
 
     generateButton.disabled = true;
     generateStatus.textContent = '生成请求已发送，请稍候...';
@@ -1110,15 +1077,10 @@ async function handleGenerateClick() {
     generateStatus.classList.add('text-gray-600');
 
     try {
-        const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
-
+        const response = await fetch('/api/generate', { method: 'POST' });
+        
         if (!response.ok) {
-            let errorDetail = "生成失败。";
+            let errorDetail = "生成文件失败";
             try {
                 const errorData = await response.json();
                 errorDetail = errorData.detail || JSON.stringify(errorData);
@@ -1127,22 +1089,20 @@ async function handleGenerateClick() {
             }
             throw new Error(errorDetail);
         }
-
-        const result = await response.json();
-        generateStatus.textContent = result.message || '生成成功完成！';
-        generateStatus.classList.remove('text-gray-600');
-        generateStatus.classList.add('text-green-500');
-
-        // 立即刷新文件列表
-        await fetchAndDisplayFiles();
         
-        // 2秒后再次刷新文件列表，以确保捕获到最新生成的文件
-        setTimeout(fetchAndDisplayFiles, 2000);
-
+        const result = await response.json();
+        generateStatus.textContent = result.message || '文件生成成功!';
+        generateStatus.classList.remove('text-gray-600', 'text-red-500');
+        generateStatus.classList.add('text-green-500');
+        
+        // 稍等片刻后刷新文件列表
+        setTimeout(() => {
+            fetchAndDisplayFiles();
+        }, 500);
     } catch (error) {
-        console.error('Error triggering generation:', error);
-        generateStatus.textContent = `生成出错: ${error.message}`;
-        generateStatus.classList.remove('text-gray-600');
+        console.error('生成文件出错:', error);
+        generateStatus.textContent = `生成失败: ${error.message}`;
+        generateStatus.classList.remove('text-gray-600', 'text-green-500');
         generateStatus.classList.add('text-red-500');
     } finally {
         generateButton.disabled = false;
