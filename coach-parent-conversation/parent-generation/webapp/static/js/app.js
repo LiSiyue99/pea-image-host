@@ -636,9 +636,6 @@ function createTargetPercentageForm(container, column, percentages) {
     const options = configOptions.options[column] || [];
     if (options.length === 0) return;
     
-    // 初始化optionCount变量
-    let optionCount = 0;
-    
     // 创建表单区域
     const form = document.createElement('div');
     form.id = `target-form-${column}`;
@@ -668,6 +665,41 @@ function createTargetPercentageForm(container, column, percentages) {
     const inputsContainer = document.createElement('div');
     inputsContainer.classList.add('space-y-2');
     
+    // 添加选项选择区域
+    const selectContainer = document.createElement('div');
+    selectContainer.classList.add('mb-4');
+    
+    const selectLabel = document.createElement('div');
+    selectLabel.textContent = '选择选项：';
+    selectLabel.classList.add('text-sm', 'font-medium', 'mb-2');
+    
+    const select = document.createElement('select');
+    select.classList.add('w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring-indigo-500', 'sm:text-sm');
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = `-- 选择${columnTranslations[column] || column}选项 --`;
+    select.appendChild(defaultOption);
+    
+    // 添加所有选项到下拉列表
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        select.appendChild(optionElement);
+    });
+    
+    // 添加按钮
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.textContent = '添加选项';
+    addButton.classList.add('mt-2', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm');
+    
+    selectContainer.appendChild(selectLabel);
+    selectContainer.appendChild(select);
+    selectContainer.appendChild(addButton);
+    form.appendChild(selectContainer);
+    
     // 总计和校验
     const totalRow = document.createElement('div');
     totalRow.classList.add('mt-4', 'pt-2', 'border-t', 'flex', 'items-center', 'justify-between');
@@ -679,10 +711,13 @@ function createTargetPercentageForm(container, column, percentages) {
     const totalValue = document.createElement('span');
     totalValue.id = `target-total-${column}`;
     totalValue.classList.add('font-medium');
+    totalValue.textContent = '0.00';
     
     const validateStatus = document.createElement('span');
     validateStatus.id = `target-status-${column}`;
     validateStatus.classList.add('text-xs', 'ml-2');
+    validateStatus.textContent = '✓ 有效';
+    validateStatus.classList.add('text-green-500');
     
     totalRow.appendChild(totalLabel);
     totalRow.appendChild(totalValue);
@@ -696,11 +731,39 @@ function createTargetPercentageForm(container, column, percentages) {
     // 添加已有的选项
     if (percentages) {
         Object.keys(percentages).forEach(option => {
-            if (optionCount < 5) {
-                addOptionToTargetPercentage(option, percentages[option]);
-                optionCount++;
-            }
+            addOptionToTargetPercentage(option, percentages[option]);
+            
+            // 禁用已添加的选项
+            Array.from(select.options).forEach(optElement => {
+                if (optElement.value === option) {
+                    optElement.disabled = true;
+                }
+            });
         });
+    }
+    
+    // 更新总计函数
+    function updateTotal() {
+        const inputs = inputsContainer.querySelectorAll('input[type="number"]');
+        let total = 0;
+        
+        inputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            total += value;
+        });
+        
+        totalValue.textContent = total.toFixed(2);
+        
+        // 验证总计是否小于等于1
+        if (total <= 1.0) {
+            validateStatus.textContent = '✓ 有效';
+            validateStatus.classList.remove('text-red-500');
+            validateStatus.classList.add('text-green-500');
+        } else {
+            validateStatus.textContent = '✗ 总计必须小于等于1.0';
+            validateStatus.classList.remove('text-green-500');
+            validateStatus.classList.add('text-red-500');
+        }
     }
     
     // 添加选项到目标百分比列表的函数
@@ -731,7 +794,14 @@ function createTargetPercentageForm(container, column, percentages) {
         removeButton.classList.add('ml-2', 'text-red-500', 'font-bold');
         removeButton.addEventListener('click', () => {
             row.remove();
-            optionCount--;
+            
+            // 重新启用被移除的选项
+            Array.from(select.options).forEach(optElement => {
+                if (optElement.value === option) {
+                    optElement.disabled = false;
+                }
+            });
+            
             updateTotal();
         });
         
@@ -743,6 +813,30 @@ function createTargetPercentageForm(container, column, percentages) {
         updateTotal();
     }
     
+    // 添加按钮点击事件
+    addButton.addEventListener('click', () => {
+        const selectedOption = select.value;
+        
+        if (!selectedOption) return;
+        
+        // 添加选项
+        addOptionToTargetPercentage(selectedOption, 0);
+        
+        // 禁用已添加的选项
+        Array.from(select.options).forEach(option => {
+            if (option.value === selectedOption) {
+                option.disabled = true;
+            }
+        });
+        
+        // 重置选择
+        select.value = '';
+    });
+    
+    // 将容器添加到表单
+    form.appendChild(inputsContainer);
+    form.appendChild(totalRow);
+    form.appendChild(helpText);
     container.appendChild(form);
 }
 
@@ -988,7 +1082,7 @@ function createComplainDistributionUI(column, container, distribution) {
     
     // 添加说明
     const desc = document.createElement('p');
-    desc.textContent = '请选择最多5个抱怨内容选项设置分布，各选项之和必须为1。';
+    desc.textContent = '请选择抱怨内容选项设置分布，各选项之和必须为1。';
     desc.classList.add('text-sm', 'text-gray-500', 'mb-3');
     form.appendChild(desc);
     
@@ -1002,7 +1096,7 @@ function createComplainDistributionUI(column, container, distribution) {
     selectContainer.classList.add('mb-4');
     
     const selectLabel = document.createElement('div');
-    selectLabel.textContent = '选择抱怨内容（最多5个）：';
+    selectLabel.textContent = '选择抱怨内容：';
     selectLabel.classList.add('text-sm', 'font-medium', 'mb-2');
     
     const select = document.createElement('select');
@@ -1042,9 +1136,6 @@ function createComplainDistributionUI(column, container, distribution) {
     selectContainer.appendChild(addButton);
     form.appendChild(selectContainer);
     
-    // 已添加选项的计数器
-    let optionCount = 0;
-    
     // 总计和校验
     const totalRow = document.createElement('div');
     totalRow.classList.add('mt-4', 'pt-2', 'border-t', 'flex', 'items-center', 'justify-between');
@@ -1072,17 +1163,14 @@ function createComplainDistributionUI(column, container, distribution) {
     // 添加已有的选项
     if (distribution) {
         Object.keys(distribution).forEach(option => {
-            if (optionCount < 5) {
-                addOptionToDistribution(option, distribution[option]);
-                optionCount++;
-                
-                // 禁用已添加的选项
-                Array.from(select.options).forEach(optElement => {
-                    if (optElement.value === option) {
-                        optElement.disabled = true;
-                    }
-                });
-            }
+            addOptionToDistribution(option, distribution[option]);
+            
+            // 禁用已添加的选项
+            Array.from(select.options).forEach(optElement => {
+                if (optElement.value === option) {
+                    optElement.disabled = true;
+                }
+            });
         });
     }
     
@@ -1138,7 +1226,6 @@ function createComplainDistributionUI(column, container, distribution) {
         removeButton.classList.add('ml-2', 'text-red-500', 'font-bold');
         removeButton.addEventListener('click', () => {
             row.remove();
-            optionCount--;
             
             // 重新启用被移除的选项
             Array.from(select.options).forEach(optElement => {
@@ -1162,11 +1249,10 @@ function createComplainDistributionUI(column, container, distribution) {
     addButton.addEventListener('click', () => {
         const selectedOption = select.value;
         
-        if (!selectedOption || optionCount >= 5) return;
+        if (!selectedOption) return;
         
         // 添加选项
         addOptionToDistribution(selectedOption, 0);
-        optionCount++;
         
         // 禁用已添加的选项
         Array.from(select.options).forEach(option => {
@@ -1177,13 +1263,6 @@ function createComplainDistributionUI(column, container, distribution) {
         
         // 重置选择
         select.value = '';
-        
-        // 如果已达最大选择数，禁用添加按钮
-        if (optionCount >= 5) {
-            select.disabled = true;
-            addButton.disabled = true;
-            addButton.classList.add('opacity-50');
-        }
     });
     
     container.appendChild(form);
@@ -1218,7 +1297,7 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     
     // 添加说明
     const desc = document.createElement('p');
-    desc.textContent = '请选择最多5个抱怨内容选项设置目标百分比，总和应小于等于1。';
+    desc.textContent = '请选择抱怨内容选项设置目标百分比，总和应小于等于1。';
     desc.classList.add('text-sm', 'text-gray-500', 'mb-3');
     form.appendChild(desc);
     
@@ -1232,7 +1311,7 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     selectContainer.classList.add('mb-4');
     
     const selectLabel = document.createElement('div');
-    selectLabel.textContent = '选择抱怨内容（最多5个）：';
+    selectLabel.textContent = '选择抱怨内容：';
     selectLabel.classList.add('text-sm', 'font-medium', 'mb-2');
     
     const select = document.createElement('select');
@@ -1264,9 +1343,6 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     selectContainer.appendChild(select);
     selectContainer.appendChild(addButton);
     form.appendChild(selectContainer);
-    
-    // 已添加选项的计数器
-    let optionCount = 0;
     
     // 总计和校验
     const totalRow = document.createElement('div');
@@ -1301,17 +1377,14 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     // 添加已有的选项
     if (percentages) {
         Object.keys(percentages).forEach(option => {
-            if (optionCount < 5) {
-                addOptionToTargetPercentage(option, percentages[option]);
-                optionCount++;
-                
-                // 禁用已添加的选项
-                Array.from(select.options).forEach(optElement => {
-                    if (optElement.value === option) {
-                        optElement.disabled = true;
-                    }
-                });
-            }
+            addOptionToTargetPercentage(option, percentages[option]);
+            
+            // 禁用已添加的选项
+            Array.from(select.options).forEach(optElement => {
+                if (optElement.value === option) {
+                    optElement.disabled = true;
+                }
+            });
         });
     }
     
@@ -1367,7 +1440,6 @@ function createComplainTargetPercentageUI(column, container, percentages) {
         removeButton.classList.add('ml-2', 'text-red-500', 'font-bold');
         removeButton.addEventListener('click', () => {
             row.remove();
-            optionCount--;
             
             // 重新启用被移除的选项
             Array.from(select.options).forEach(optElement => {
@@ -1391,11 +1463,10 @@ function createComplainTargetPercentageUI(column, container, percentages) {
     addButton.addEventListener('click', () => {
         const selectedOption = select.value;
         
-        if (!selectedOption || optionCount >= 5) return;
+        if (!selectedOption) return;
         
         // 添加选项
         addOptionToTargetPercentage(selectedOption, 0);
-        optionCount++;
         
         // 禁用已添加的选项
         Array.from(select.options).forEach(option => {
@@ -1406,14 +1477,11 @@ function createComplainTargetPercentageUI(column, container, percentages) {
         
         // 重置选择
         select.value = '';
-        
-        // 如果已达最大选择数，禁用添加按钮
-        if (optionCount >= 5) {
-            select.disabled = true;
-            addButton.disabled = true;
-            addButton.classList.add('opacity-50');
-        }
     });
     
+    // 将容器添加到表单
+    form.appendChild(inputsContainer);
+    form.appendChild(totalRow);
+    form.appendChild(helpText);
     container.appendChild(form);
 }
