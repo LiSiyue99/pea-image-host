@@ -1,0 +1,200 @@
+/* 通用响应式设计样式 */
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background-color: #f3f4f6;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    height: 15px;
+    border-radius: 7.5px;
+    background-color: #e0e0e0;
+    overflow: hidden;
+}
+
+.radar-chart-container {
+    margin: 0 auto;
+    height: 400px;
+    position: relative;
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.vertical-line {
+    position: absolute;
+    width: 4px;
+    border-radius: 2px;
+    background-color: #5e35b1;
+    height: 20px;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+/* 模块标题样式 */
+.module-title {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 16px;
+}
+
+.module-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(to bottom, #5e35b1, #7e57c2);
+    border-radius: 2px;
+}
+
+/* 示例图片容器 */
+.example-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.example-card {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+}
+
+.example-image {
+    height: 200px;
+    background-color: #edf2f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a0aec0;
+    font-weight: bold;
+}
+
+.example-caption {
+    padding: 12px;
+    font-size: 0.875rem;
+}
+
+/* 响应式设计增强 */
+@media (max-width: 640px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    h3 {
+        font-size: 1.1rem !important;
+    }
+    
+    .radar-chart-container {
+        height: 300px;
+    }
+    
+    .example-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .example-image {
+        height: 150px;
+    }
+    
+    .card {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+    
+    .space-y-6 > * + * {
+        margin-top: 1rem;
+    }
+    
+    .mb-10 {
+        margin-bottom: 1.5rem;
+    }
+    
+    .mb-6 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* 针对雷达图的响应式设计 */
+@media (max-width: 480px) {
+    .radar-chart-container {
+        height: 250px;
+        padding: 10px;
+    }
+}
+
+/* 特定主题样式：蓝色主题 */
+.theme-blue header {
+    background-color: #1a56db;
+}
+
+.theme-blue h2 {
+    color: #1e429f;
+}
+
+/* 特定主题样式：紫色主题 */
+.theme-purple header {
+    background-color: #7e3af2;
+}
+
+.theme-purple h2 {
+    color: #5521b5;
+}
+
+/* 特定主题样式：绿色主题 */
+.theme-green header {
+    background-color: #0e9f6e;
+}
+
+.theme-green h2 {
+    color: #046c4e;
+}
+
+/* 特定主题样式：红色主题 */
+.theme-red header {
+    background-color: #e02424;
+}
+
+.theme-red h2 {
+    color: #9b1c1c;
+}
+
+/* 主题切换效果 */
+header, h2, .card {
+    transition: all 0.3s ease;
+} 
