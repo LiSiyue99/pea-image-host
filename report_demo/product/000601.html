@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻简报审核提示词能力评估报告</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+        }
+        
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            height: 15px;
+            border-radius: 7.5px;
+            background-color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .radar-chart-container {
+            margin: 0 auto;
+            height: 400px;
+            position: relative;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .vertical-line {
+            position: absolute;
+            width: 4px;
+            border-radius: 2px;
+            background-color: #3f51b5;
+            height: 20px;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        
+        /* 模块标题样式 */
+        .module-title {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .module-title::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(to bottom, #3f51b5, #5c6bc0);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-indigo-700 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-center">新闻简报审核提示词能力评估报告</h1>
+            <div class="flex justify-end mt-2">
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-1 text-sm">
+                    <span>评估编号: 000601</span>
+                    <span class="mx-2">|</span>
+                    <span>评估日期: 2025-04-17</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- 一、题目内容回顾 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">一、题目内容回顾</h2>
+            <div class="bg-white rounded-xl shadow-md p-6 card">
+                <div class="mb-6">
+                    <div class="flex items-center mb-3">
+                        <div class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></div>
+                        <h3 class="text-lg font-bold text-gray-800">背景与任务</h3>
+                    </div>
+                    <p class="text-gray-700 ml-5">
+                        AI自动转写新闻通稿为简报，但存在错误风险；需撰写提示词指挥AI审核简报
+                    </p>
+                </div>
+                
+                <div>
+                    <div class="flex items-center mb-3">
+                        <div class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></div>
+                        <h3 class="text-lg font-bold text-gray-800">核心要求</h3>
+                    </div>
+                    <p class="text-gray-700 ml-5">
+                        识别并指出简报中潜在的信息歪曲、事实捏造、逻辑不通等问题
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 二、答题者表现 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">二、答题者表现</h2>
+            
+            <!-- 综合得分 - 简化版 -->
+            <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">综合评定</h3>
+                <div class="flex flex-wrap">
+                    <div class="w-full md:w-1/4 flex justify-center items-center mb-6 md:mb-0">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center shadow-lg">
+                                <span class="text-4xl font-bold text-white">C+</span>
+                            </div>
+                            <span class="mt-3 text-gray-700 font-medium">综合得分</span>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-3/4">
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700">
+                                总体评价
+                            </h4>
+                            <p class="text-gray-600 mt-2">
+                                答题者设计了多维度审核框架，结构清晰有序，能有效检测明显错误。但在验证机制设计和交互性方面存在不足，错误标准定义较为抽象，对隐蔽错误的检出率偏低。整体提示词能满足基本审核需求，但缺乏深度应用和错误模式示例，效果有待提升。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 分项得分 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">分项得分</h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-700 flex items-center">
+                                <span class="font-medium">表达与转译能力</span>
+                                <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-semibold">B</span>
+                            </span>
+                            <span class="font-bold text-blue-600">7/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-700 flex items-center">
+                                <span class="font-medium">自我验证与信任能力</span>
+                                <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold">C</span>
+                            </span>
+                            <span class="font-bold text-yellow-600">6/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-yellow-500 h-full rounded-full" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 优缺点分析 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-green-50 rounded-xl shadow-md p-6 card border-l-4 border-green-500">
+                    <h3 class="text-lg font-bold text-green-800 mb-4">优势</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">多维度审核框架设计全面</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">结构化输出格式规范明确</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">比对策略多样性考虑周全</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">任务理解准确，目标明确</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-red-50 rounded-xl shadow-md p-6 card border-l-4 border-red-500">
+                    <h3 class="text-lg font-bold text-red-800 mb-4">不足</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">检验标准抽象模糊，缺乏细节</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">验证机制设计不足，信任度低</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">交互设计单向静态，缺乏适应性</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">未提供错误模式示例，操作性弱</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 执行效果 -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">执行效果</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">明显错误检出率</span>
+                            <span class="font-bold text-green-600">75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-green-500 h-full rounded-full" style="width: 75%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">能有效发现结构性错误和明显的事实偏差</p>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">隐蔽错误检出率</span>
+                            <span class="font-bold text-red-600">40%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-red-500 h-full rounded-full" style="width: 40%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">对细微表述偏差和上下文逻辑缺陷的检测较弱</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-bold text-blue-800 mb-2">综合效率评价</h4>
+                    <p class="text-gray-700">
+                        整体审核效率为65%，在常规错误检测上表现良好，但对需要深度理解和上下文分析的错误识别不足。提示词设计的结构化程度高，但缺乏对错误模式的具体指导，限制了AI的审核深度。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 答题者提交的答案 -->
+            <div class="bg-yellow-50 rounded-xl shadow-md p-6 card border-2 border-yellow-300">
+                <h3 class="text-lg font-bold text-yellow-800 mb-4">答题者提交的答案</h3>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-700">
+                    <li>要求AI对照原始通稿，逐段检查简报内容的准确性和完整性</li>
+                    <li>设计多维度检查框架，包含：事实准确性、数据一致性、逻辑连贯性、表述清晰度等</li>
+                    <li>要求AI提供结构化的审核结果，明确标注问题位置、类型和严重程度</li>
+                </ol>
+                
+                <div class="mt-4 p-3 bg-white rounded border border-yellow-200">
+                    <h4 class="font-bold text-yellow-700 text-sm mb-1">点评</h4>
+                    <p class="text-sm text-gray-600">
+                        答题者设计了全面的审核框架和清晰的输出结构，展示了对任务的准确理解。但缺乏对各类错误的具体识别标准和验证机制设计，使AI难以进行深度审核和可靠性评估。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 三、提示词能力分析 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">三、提示词能力分析</h2>
+            
+            <!-- 关键能力分析 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="module-title text-lg font-bold text-gray-800">关键能力分析</h3>
+                <div class="space-y-6">
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-blue-500 top-4"></div>
+                        <h4 class="text-blue-600 font-bold">表达与转译 <span class="ml-2 text-blue-600">(B)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">成功将抽象的审核任务转化为结构化步骤，但部分概念转译不够精确具体</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-yellow-500 top-4"></div>
+                        <h4 class="text-yellow-600 font-bold">自我验证与人类信任 <span class="ml-2 text-yellow-600">(C)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">基本建立了结果可验证性机制，但缺乏透明度设计和信心评级系统</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-yellow-500 top-4"></div>
+                        <h4 class="text-yellow-600 font-bold">迭代优化与反馈 <span class="ml-2 text-yellow-600">(C)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">未设计明确的改进机制和交互策略，缺乏对反馈流程的考虑</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-blue-500 top-4"></div>
+                        <h4 class="text-blue-600 font-bold">自然语言世界建模 <span class="ml-2 text-blue-600">(B-)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">对新闻审核领域有基本理解，但在专业知识深度应用上略显不足</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-blue-500 top-4"></div>
+                        <h4 class="text-blue-600 font-bold">选择与排序 <span class="ml-2 text-blue-600">(B)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">在多种审核策略中作出相对合理的选择，对不同错误类型进行有效区分</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-bold text-gray-700 mb-2">能力整合分析</h4>
+                    <p class="text-gray-600">
+                        答题者在表达转译和选择排序方面表现较好，能将复杂任务分解为结构化步骤；但在验证机制设计和反馈优化方面有明显不足，导致提示词缺乏适应性和深度。整体能力组合偏向静态指令设计，在动态交互方面略显薄弱。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 能力雷达图 -->
+            <div class="bg-white rounded-xl shadow-md p-6 card">
+                <h3 class="module-title text-lg font-bold text-gray-800">能力雷达图</h3>
+                <div class="radar-chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 四、改进方向概览 -->
+        <section>
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">四、改进方向概览</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">1</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">提升检验标准具体性</h3>
+                            <p class="text-gray-700 mt-1">为每种错误类型提供明确的识别标准和典型模式，增强AI判断准确度</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">2</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">完善自我验证机制</h3>
+                            <p class="text-gray-700 mt-1">设计透明的验证体系，包括信心评级和判断依据，提高审核可靠性</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">3</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">增强交互性设计</h3>
+                            <p class="text-gray-700 mt-1">将静态指令转变为动态交互模式，增加迭代优化能力，提高审核深度</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>© 2025 AXIIA提示词能力测试</p>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化雷达图
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            const radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['表达与转译', '自我验证', '迭代优化', '自然语言建模', '选择排序'],
+                    datasets: [{
+                        label: '能力评级 (映射值)',
+                        data: [7, 6, 6, 5.5, 7],
+                        backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                        borderColor: '#2196f3',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#2196f3',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#2196f3',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true, lineWidth: 1.5, color: 'rgba(33, 150, 243, 0.15)' },
+                            grid: { lineWidth: 1.5, color: 'rgba(33, 150, 243, 0.15)' },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            pointLabels: { 
+                                display: true,
+                                font: { 
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#333333'
+                            },
+                            ticks: { 
+                                display: true, 
+                                stepSize: 2,
+                                callback: function(value, index, ticks) {
+                                    if (value >= 9) return 'A';
+                                    if (value >= 7) return 'B';
+                                    if (value >= 5) return 'C';
+                                    if (value >= 3) return 'D';
+                                    return '';
+                                }
+                            } 
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: false,
+                    events: []
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+  

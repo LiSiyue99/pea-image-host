@@ -1,0 +1,20 @@
+[
+  {
+    "chat_id": "ed549fe3-a016-4bbf-aebc-2613be48a1eb",
+    "id": "ac37d46c-83b1-41fb-afd9-4cc66810d44c",
+    "content": "请帮我找出 @main.ts 的错误\n",
+    "context": "[{\"path\":\"main.ts\",\"version\":1}]",
+    "timestamp": 1741830039108,
+    "readable_time": "2025-03-13 09:40:39",
+    "file_source": "/Users/siyue/Downloads/0203/02/messages_export_0.json"
+  },
+  {
+    "chat_id": "ed549fe3-a016-4bbf-aebc-2613be48a1eb",
+    "id": "4c6158cd-0968-4092-a013-d55b4849dfa1",
+    "content": "帮我生成对 @main.ts 的单元测试，考虑边界情况，参考 @test.ts \n",
+    "context": "[{\"path\":\"main.ts\",\"version\":2},{\"path\":\"test.ts\",\"version\":1}]",
+    "timestamp": 1741861690176,
+    "readable_time": "2025-03-13 18:28:10",
+    "file_source": "/Users/siyue/Downloads/0203/02/messages_export_0.json"
+  }
+]

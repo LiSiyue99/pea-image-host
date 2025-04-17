@@ -1,0 +1,20 @@
+[
+  {
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "id": "ee50f832-0c45-4c26-a56c-f8b84868da78",
+    "content": "1、请先阅读 @llmproxy/app.py \n2、请编辑 @llmproxy/app.py，帮我实现如下需求：\n      <1>、将/v1/chat/completions收到的请求转发到本地前文模型，地址：http://10.103.232.66:8019/v1/completions。\n      <2>、正确的 HTTP 标头管理（合并默认 HTTP 标头和下游 HTTP 标头，默认 HTTP 标头优先）。\n       <3>、还要实现流式输出。如果本地模型有错误，有效将错误返回给调用者。\n       <4>、最后还要写单元测试，确保代码的稳定性。\n",
+    "context": "[{\"path\":\"llmproxy/app.py\",\"version\":1}]",
+    "timestamp": 1742691911910,
+    "readable_time": "2025-03-23 09:05:11",
+    "file_source": "/Users/siyue/Downloads/Lenovo/05/messages_export_1.json"
+  },
+  {
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "id": "ae462e6a-79f1-476b-a94e-97dee83d96fe",
+    "content": "请将test_proxy_local_LLM.py挪到tests目录下\n",
+    "context": "[]",
+    "timestamp": 1742692205782,
+    "readable_time": "2025-03-23 09:10:05",
+    "file_source": "/Users/siyue/Downloads/Lenovo/05/messages_export_1.json"
+  }
+]

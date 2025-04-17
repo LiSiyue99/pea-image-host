@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未知语言解析协作能力评估报告</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+        }
+        
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            height: 15px;
+            border-radius: 7.5px;
+            background-color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .radar-chart-container {
+            margin: 0 auto;
+            height: 400px;
+            position: relative;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .vertical-line {
+            position: absolute;
+            width: 4px;
+            border-radius: 2px;
+            background-color: #3f51b5;
+            height: 20px;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        
+        /* 模块标题样式 */
+        .module-title {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .module-title::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(to bottom, #3f51b5, #5c6bc0);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-indigo-700 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-center">未知语言解析协作能力评估报告</h1>
+            <div class="flex justify-end mt-2">
+                <div class="bg-white bg-opacity-20 rounded-lg px-4 py-1 text-sm">
+                    <span>评估编号: 000111</span>
+                    <span class="mx-2">|</span>
+                    <span>评估日期: 2025-04-18</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- 一、题目内容回顾 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">一、题目内容回顾</h2>
+            <div class="bg-white rounded-xl shadow-md p-6 card">
+                <div class="mb-6">
+                    <div class="flex items-center mb-3">
+                        <div class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></div>
+                        <h3 class="text-lg font-bold text-gray-800">背景与任务</h3>
+                    </div>
+                    <p class="text-gray-700 ml-5">
+                        与AI合作解析未知语言（迪尔巴尔语），AI对此语言零认知。需提供语言材料。
+                    </p>
+                </div>
+                
+                <div>
+                    <div class="flex items-center mb-3">
+                        <div class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></div>
+                        <h3 class="text-lg font-bold text-gray-800">核心要求</h3>
+                    </div>
+                    <p class="text-gray-700 ml-5">
+                        通过提问、假设和反馈，有效引导AI共同揭示语言规则。评估主导探索、与AI协作能力。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 二、答题者表现 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">二、答题者表现</h2>
+            
+            <!-- 综合得分 - 简化版 -->
+            <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">综合评定</h3>
+                <div class="flex flex-wrap">
+                    <div class="w-full md:w-1/4 flex justify-center items-center mb-6 md:mb-0">
+                        <!-- 简化为只有B评级的设计 -->
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center shadow-lg">
+                                <span class="text-4xl font-bold text-white">B</span>
+                            </div>
+                            <span class="mt-3 text-gray-700 font-medium">综合得分</span>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-3/4">
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700">
+                                总体评价
+                            </h4>
+                            <p class="text-gray-600 mt-2">
+                                答题者在未知语言解析任务中展现了良好的协作能力，能够构建系统性探索策略，提出合理假设，并根据AI反馈调整方向。在探索式发现方面表现突出，但在矛盾处理和假设筛选方面有待加强。整体协作流程清晰，能够引导AI进行有效解析。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 分项得分 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">分项得分</h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-700 flex items-center">
+                                <span class="font-medium">探索式发现能力</span>
+                                <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-semibold">A-</span>
+                            </span>
+                            <span class="font-bold text-green-600">8/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-700 flex items-center">
+                                <span class="font-medium">选择与排序能力</span>
+                                <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold">C</span>
+                            </span>
+                            <span class="font-bold text-yellow-600">6/10</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-yellow-500 h-full rounded-full" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 优缺点分析 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-green-50 rounded-xl shadow-md p-6 card border-l-4 border-green-500">
+                    <h3 class="text-lg font-bold text-green-800 mb-4">优势</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">能提出多种探索性问题</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">善于利用AI进行模式匹配</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">能根据AI反馈调整假设</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">协作流程比较清晰</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-red-50 rounded-xl shadow-md p-6 card border-l-4 border-red-500">
+                    <h3 class="text-lg font-bold text-red-800 mb-4">不足</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">在处理AI矛盾输出时犹豫</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">对反常假设的验证不够深入</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">有时问题引导不够聚焦</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center mr-3 mt-0.5">
+                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">对AI潜在偏见识别不足</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 执行效果 -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">执行效果</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">明显规则发现率</span>
+                            <span class="font-bold text-green-600">80%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">成功发现大部分基础语法规则和常见词汇模式</p>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-700">隐藏规则发现率</span>
+                            <span class="font-bold text-yellow-600">55%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="bg-yellow-500 h-full rounded-full" style="width: 55%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">对复杂词缀系统和语境相关规则识别有限</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-bold text-blue-800 mb-2">解析效率评价</h4>
+                    <p class="text-gray-700">
+                        答题者在规定时间内（32分钟）完成了主要解析任务，在发现常规模式方面效率较高，但在处理语言特殊情况时耗时较多。整体探索路径较为合理，但存在部分探索冗余。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 答题者提交的答案 -->
+            <div class="bg-yellow-50 rounded-xl shadow-md p-6 card border-2 border-yellow-300">
+                <h3 class="text-lg font-bold text-yellow-800 mb-4">答题者提交的答案</h3>
+                <ol class="list-decimal pl-6 space-y-2 text-gray-700">
+                    <li>假设：根据例句推断，词缀'-ngu'可能表示所有格。</li>
+                    <li>提问：请AI验证以下句子中是否存在该词缀，并分析其功能。</li>
+                    <li>反馈：AI确认了词缀存在，但功能似乎与动作发起者有关，修正假设。</li>
+                </ol>
+                
+                <div class="mt-4 p-3 bg-white rounded border border-yellow-200">
+                    <h4 class="font-bold text-yellow-700 text-sm mb-1">点评</h4>
+                    <p class="text-sm text-gray-600">
+                        答题者展示了良好的假设-验证循环，特别是在发现初始假设不准确时能及时调整方向。提问方式直接明了，但可以更加系统地设计验证步骤，提高探索效率。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 三、提示词能力分析 -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">三、提示词能力分析</h2>
+            
+            <!-- 关键能力分析 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6 card">
+                <h3 class="module-title text-lg font-bold text-gray-800">关键能力分析</h3>
+                <div class="space-y-6">
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-blue-500 top-4"></div>
+                        <h4 class="text-blue-600 font-bold">表达与转译 <span class="ml-2 text-blue-600">(B)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">能清晰地向AI表述问题和假设，但在将复杂语言现象简化为AI可理解指令方面有提升空间。</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-yellow-500 top-4"></div>
+                        <h4 class="text-yellow-600 font-bold">自我验证与人类信任 <span class="ml-2 text-yellow-600">(C)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">尝试设计验证步骤，但对AI输出的批判性评估不足，有时过度信任AI的模式识别。</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-blue-500 top-4"></div>
+                        <h4 class="text-blue-600 font-bold">迭代优化与反馈 <span class="ml-2 text-blue-600">(B)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">能够根据AI的反馈调整探索方向，但反馈循环的效率和深度可以加强。</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-green-500 top-4"></div>
+                        <h4 class="text-green-600 font-bold">探索式发现 <span class="ml-2 text-green-600">(A-)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">展现了较强的开放式探索意愿，能提出多种可能性引导AI发现未知规律。</p>
+                    </div>
+                    
+                    <div class="relative pl-5">
+                        <div class="vertical-line bg-yellow-500 top-4"></div>
+                        <h4 class="text-yellow-600 font-bold">选择与排序 <span class="ml-2 text-yellow-600">(C)</span></h4>
+                        <p class="text-gray-600 text-sm mt-1">在面对AI提出的多种解释时，筛选和确定优先级的决策依据不够充分。</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-bold text-gray-700 mb-2">能力整合分析</h4>
+                    <p class="text-gray-600">
+                        答题者的能力组合呈现"T型"结构：在探索发现方面具有深度优势，在表达与迭代方面表现尚可，而在自我验证和选择排序方面相对薄弱。这种能力结构适合初步探索和发散思考，但在收敛分析和批判思考环节效果有限。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 能力雷达图 -->
+            <div class="bg-white rounded-xl shadow-md p-6 card">
+                <h3 class="module-title text-lg font-bold text-gray-800">能力雷达图</h3>
+                <div class="radar-chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 四、改进方向概览 -->
+        <section>
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">四、改进方向概览</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">1</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">强化对AI矛盾输出的处理策略</h3>
+                            <p class="text-gray-700 mt-1">学习如何设计实验区分不同假设，建立系统性的验证方法，避免被AI的不确定回答引入歧途。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">2</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">提升假设评估与筛选能力</h3>
+                            <p class="text-gray-700 mt-1">明确选择优先级排序的标准，训练判断不同假设价值的能力，学习科学的决策方法提高效率。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl shadow-md p-5 card border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">3</div>
+                        <div>
+                            <h3 class="font-bold text-blue-800">学习识别和处理AI潜在偏见</h3>
+                            <p class="text-gray-700 mt-1">在语言解析中尤其注意归纳偏误，了解常见的AI认知局限和语言处理弱点，设计更全面的测试案例。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>© 2025 AXIIA提示词能力测试</p>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化雷达图
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            const radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['表达与转译', '自我验证', '迭代优化', '探索发现', '选择排序'],
+                    datasets: [{
+                        label: '能力评级 (映射值)',
+                        data: [7, 5, 7, 9, 5],
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: '#4CAF50',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4CAF50',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#4CAF50',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true, lineWidth: 1.5, color: 'rgba(76, 175, 80, 0.15)' },
+                            grid: { lineWidth: 1.5, color: 'rgba(76, 175, 80, 0.15)' },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            pointLabels: { 
+                                display: true,
+                                font: { 
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#333333'
+                            },
+                            ticks: { 
+                                display: true, 
+                                stepSize: 2,
+                                callback: function(value, index, ticks) {
+                                    if (value >= 9) return 'A';
+                                    if (value >= 7) return 'B';
+                                    if (value >= 5) return 'C';
+                                    if (value >= 3) return 'D';
+                                    return '';
+                                }
+                            } 
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: false,
+                    events: []
+                }
+            });
+        });
+    </script>

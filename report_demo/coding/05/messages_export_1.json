@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ee50f832-0c45-4c26-a56c-f8b84868da78",
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "content": "1、请先阅读 @llmproxy/app.py \n2、请编辑 @llmproxy/app.py，帮我实现如下需求：\n      <1>、将/v1/chat/completions收到的请求转发到本地前文模型，地址：http://10.103.232.66:8019/v1/completions。\n      <2>、正确的 HTTP 标头管理（合并默认 HTTP 标头和下游 HTTP 标头，默认 HTTP 标头优先）。\n       <3>、还要实现流式输出。如果本地模型有错误，有效将错误返回给调用者。\n       <4>、最后还要写单元测试，确保代码的稳定性。\n",
+    "context": "[{\"path\":\"llmproxy/app.py\",\"version\":1}]",
+    "created_at": 1742691911910,
+    "gen": 0,
+    "message_type": "user",
+    "created_at_readable": "2025-03-23 09:05:11"
+  },
+  {
+    "id": "8071f65f-e23c-487f-8d9a-327c579780ad",
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "user_message_id": "ee50f832-0c45-4c26-a56c-f8b84868da78",
+    "content": "以下是对 `llmproxy/app.py` 文件的修改，实现了您要求的功能：\n\n```python\nfrom fastapi import Depends, FastAPI, Request, HTTPException\nfrom fastapi.responses import StreamingResponse\nfrom pydantic import BaseModel\nimport httpx\nimport asyncio\n\nclass ProxyConfig(BaseModel):\n    base_url: str\n    default_headers: dict[str, str] = {}\n\ndef get_configuration() -> ProxyConfig:\n    # Simulated configuration retrieval\n    return ProxyConfig(\n        base_url=\"http://10.103.232.66:8019/v1/completions\",\n        default_headers={\"Authorization\": \"Bearer YOUR_DEFAULT_TOKEN\"}\n    )\n\napp = FastAPI(title=\"LLM Proxy Interview Project\")\n\n@app.get(\"/\")\nasync def health_check():\n    return {\"status\": \"healthy\"}\n\nasync def stream_response(response: httpx.Response):\n    async for chunk in response.aiter_bytes():\n        yield chunk\n\n@app.post(\"/v1/chat/completions\")\nasync def proxy_chat_completions(\n    request: Request,\n    config: ProxyConfig = Depends(get_configuration)\n) -> StreamingResponse:\n    async with httpx.AsyncClient() as client:\n        try:\n            # Combining headers: default ones are overwritten by downstream headers\n            request_headers = dict(request.headers)\n            combined_headers = {**request_headers, **config.default_headers}\n\n            # Forward the request to the local model\n            response = await client.post(\n                config.base_url,\n                headers=combined_headers,\n                content=await request.body()\n            )\n\n            # Check for HTTP errors\n            response.raise_for_status()\n            \n            # Stream the response back\n            return StreamingResponse(stream_response(response), media_type=response.headers.get(\"content-type\"))\n        except httpx.RequestError as exc:\n            raise HTTPException(status_code=502, detail=str(exc))\n        except httpx.HTTPStatusError as exc:\n            # Return the response content and status code if it's an HTTP error\n            return StreamingResponse(content=exc.response.content, status_code=exc.response.status_code)\n\n```\n\n接下来是该实现的单元测试，使用 `pytest` 框架：\n\n```python\nimport pytest\nfrom fastapi.testclient import TestClient\nfrom llmproxy.app import app, get_configuration\nfrom unittest.mock import patch\n\nclient = TestClient(app)\n\n@pytest.fixture\ndef mock_proxy_config():\n    return {\n        \"base_url\": \"http://10.103.232.66:8019/v1/completions\",\n        \"default_headers\": {\"Authorization\": \"Bearer YOUR_DEFAULT_TOKEN\"}\n    }\n\ndef test_health_check():\n    response = client.get(\"/\")\n    assert response.status_code == 200\n    assert response.json() == {\"status\": \"healthy\"}\n\n@patch('llmproxy.app.httpx.AsyncClient.post')\ndef test_proxy_chat_completions_success(mock_post, mock_proxy_config):\n    mock_response_content = b'Test response'\n    mock_post.return_value.__aenter__.return_value = mock.Mock(\n        status_code=200,\n        content=mock_response_content,\n        aiter_bytes=asyncio.coroutine(lambda: iter([mock_response_content]))\n    )\n\n    with patch('llmproxy.app.get_configuration', return_value=mock_proxy_config):\n        response = client.post(\"/v1/chat/completions\", json={})\n\n    assert response.status_code == 200\n    assert response.content == mock_response_content\n\n@patch('llmproxy.app.httpx.AsyncClient.post')\ndef test_proxy_chat_completions_error(mock_post, mock_proxy_config):\n    mock_post.side_effect = httpx.HTTPStatusError(\"An error occurred\", request=mock.Mock(), response=mock.Mock(status_code=404, content=b'Error'))\n\n    with patch('llmproxy.app.get_configuration', return_value=mock_proxy_config):\n        response = client.post(\"/v1/chat/completions\", json={})\n\n    assert response.status_code == 404\n    assert response.content == b'Error'\n```\n\n### 修改说明:\n1. **请求转发**：使用 `httpx` 库将请求转发到本地模型。\n2. **合并 HTTP 标头**：下游请求头与默认请求头合并，默认请求头优先。\n3. **流式输出**：通过生成器异步返回响应，以实现流式输出。\n4. **错误返回**：在请求和响应错误的情况下，适当地将错误返回给请求方。\n5. **单元测试**：实现了健康检查和请求转发的成功及失败测试。",
+    "created_at": 1742691921063,
+    "gen": 1,
+    "message_type": "assistant",
+    "created_at_readable": "2025-03-23 09:05:21"
+  },
+  {
+    "id": "ae462e6a-79f1-476b-a94e-97dee83d96fe",
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "content": "请将test_proxy_local_LLM.py挪到tests目录下\n",
+    "context": "[]",
+    "created_at": 1742692205782,
+    "gen": 2,
+    "message_type": "user",
+    "created_at_readable": "2025-03-23 09:10:05"
+  },
+  {
+    "id": "f791a0fd-27f2-4a9b-96a6-6a7c507e21c4",
+    "chat_id": "8eac6d67-f788-4fee-8227-83830cb616b0",
+    "user_message_id": "ae462e6a-79f1-476b-a94e-97dee83d96fe",
+    "content": "要将测试文件 `test_proxy_local_LLM.py` 移动到 `tests` 目录下，假设您的项目目录结构如下：\n\n```\n/your_project\n|-- llmproxy\n|   |-- app.py\n|-- test_proxy_local_LLM.py\n```\n\n您希望重构为：\n\n```\n/your_project\n|-- llmproxy\n|   |-- app.py\n|-- tests\n|   |-- test_proxy_local_LLM.py\n```\n\n以下是如何执行这一移动操作的步骤：\n\n1. **创建 `tests` 目录**（如果它尚不存在）：\n   - 在项目的根目录下创建一个名为 `tests` 的目录。这通常可以通过使用命令行命令 `mkdir tests` 来完成。\n\n2. **移动测试文件**：\n   - 将 `test_proxy_local_LLM.py` 文件移动到 `tests` 目录中。这可以通过命令行命令 `mv test_proxy_local_LLM.py tests/` 来完成。\n\n3. **确保测试代码工作正常**：\n   - 在项目根目录运行 `pytest`，确保项目结构的变化不会对测试的正常运行导致影响。如果有任何导入错误（ImportError），请检查并调整导入路径。\n\n4. **更新导入路径**（如果有需要）：\n   - 如果 `test_proxy_local_LLM.py` 中的导入路径与其位置相关，请确保更新这些路径。例如，如果测试文件依赖于 `llmproxy` 目录中的文件，确保路径是准确的。\n\n以下是假设 `test_proxy_local_LLM.py` 中的导入路径的调整：\n\n```python\n# test_proxy_local_LLM.py 原始导入\nfrom llmproxy.app import app\n\n# 如果路径有误，例如当前项目结构调整的情况下，请确保导入路径正确：\nfrom ..llmproxy.app import app  # If using relative imports, adjust if necessary\n```\n\n关于运行 `pytest` 和验证测试是否正常通过，与正常测试过程相同：\n\n```bash\npytest tests/\n```\n\n这将运行 `tests` 目录中的所有测试文件，并报告结果。确保所有测试都如期通过，没有错误。",
+    "created_at": 1742692217040,
+    "gen": 3,
+    "message_type": "assistant",
+    "created_at_readable": "2025-03-23 09:10:17"
+  }
+]

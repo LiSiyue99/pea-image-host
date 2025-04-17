@@ -1,0 +1,29 @@
+[
+  {
+    "chat_id": "e4523ff4-5e87-4666-b137-75711a9c4fec",
+    "id": "8999c2d9-9806-4aae-8119-12cead2e978f",
+    "content": "根据 @README.md 中提到的要求，参考 @main.py \n@test.py\n生成agent代码和相应的单元测试",
+    "context": "[{\"path\":\"README.md\",\"version\":1},{\"path\":\"main.py\",\"version\":1},{\"path\":\"test.py\",\"version\":1}]",
+    "timestamp": 1741866115834,
+    "readable_time": "2025-03-13 19:41:55",
+    "file_source": "/Users/siyue/Downloads/0203/02/messages_export_2.json"
+  },
+  {
+    "chat_id": "e4523ff4-5e87-4666-b137-75711a9c4fec",
+    "id": "c28b25ba-1cfa-4818-b2c7-1f63c9591a8b",
+    "content": "根据 @README.md 中提到的要求，参考 @main.py 补充gpt函数内容，并提供相应的单元测试\n",
+    "context": "[{\"path\":\"README.md\",\"version\":1},{\"path\":\"main.py\",\"version\":1}]",
+    "timestamp": 1741866227954,
+    "readable_time": "2025-03-13 19:43:47",
+    "file_source": "/Users/siyue/Downloads/0203/02/messages_export_2.json"
+  },
+  {
+    "chat_id": "e4523ff4-5e87-4666-b137-75711a9c4fec",
+    "id": "1ecfdb05-b026-49e4-b17c-f416e97f0ef6",
+    "content": "根据 @README.md 中提到的要求，参考 @main.py \n@test.py\n生成agent代码和相应的单元测试，保证参数正确引入，可正确运行",
+    "context": "[{\"path\":\"README.md\",\"version\":1},{\"path\":\"main.py\",\"version\":1},{\"path\":\"test.py\",\"version\":1}]",
+    "timestamp": 1742271150109,
+    "readable_time": "2025-03-18 12:12:30",
+    "file_source": "/Users/siyue/Downloads/0203/02/messages_export_2.json"
+  }
+]

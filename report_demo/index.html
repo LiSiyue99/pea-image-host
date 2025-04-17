@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能力评估报告总览</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            /* Tailwind class bg-gray-100 handles background */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px; /* Adjusted max width */
+        }
+        /* Custom button hover effect (can be combined with Tailwind hover: classes) */
+        .report-button {
+            transition: all 0.3s ease;
+        }
+        .report-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- Modal Styles --- */
+        #modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 999; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+        }
+        #modal-container {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top of overlay */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw; /* 80% of viewport width */
+            height: 85vh; /* 85% of viewport height */
+            background-color: #fff;
+            padding: 20px; /* Padding inside the modal */
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack close button and iframe */
+        }
+        #modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        #modal-close-btn:hover,
+        #modal-close-btn:focus {
+            color: black;
+            text-decoration: none;
+        }
+        #modal-iframe {
+            flex-grow: 1; /* Allow iframe to fill space */
+            width: 100%;
+            height: 100%; /* Height is determined by flex-grow */
+            border: none;
+            margin-top: 15px; /* Space below close button area */
+        }
+        /* --- End Modal Styles --- */
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-blue-700 mb-8">能力评估报告总览</h1>
+
+        <!-- 个人信息卡片 -->
+        <div class="mb-8 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg shadow-lg overflow-hidden">
+            <div class="relative p-6">
+                <!-- 装饰圆形 -->
+                <div class="absolute top-0 right-0 w-40 h-40 -mt-10 -mr-10 bg-blue-300 rounded-full opacity-20"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 -mb-8 -ml-8 bg-blue-500 rounded-full opacity-20"></div>
+
+                <!-- 内容区域 -->
+                <div class="grid md:grid-cols-12 gap-4 relative z-10">
+                    <!-- 左侧信息 - 6格宽度 -->
+                    <div class="md:col-span-6">
+                        <div class="mb-3">
+                            <span class="text-blue-100 text-sm font-medium uppercase tracking-wider">姓名</span>
+                            <div class="flex items-center mt-1">
+                                <div class="bg-white p-1 rounded-full mr-3">
+                                    <div class="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center">
+                                        <span class="text-white font-bold">张</span>
+                                    </div>
+                                </div>
+                                <span class="text-white text-xl font-bold">张三</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-2">
+                            <div>
+                                <span class="text-blue-100 text-sm font-medium uppercase tracking-wider">部门</span>
+                                <div class="flex items-center mt-1">
+                                    <div class="bg-blue-200 rounded-md px-3 py-1">
+                                        <span class="text-blue-800 font-bold">产品部</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-blue-100 text-sm font-medium uppercase tracking-wider">职位</span>
+                                <div class="flex items-center mt-1">
+                                    <div class="bg-blue-200 rounded-md px-3 py-1">
+                                        <span class="text-blue-800 font-bold">产品经理</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-blue-100 text-sm font-medium uppercase tracking-wider">邮箱</span>
+                                <div class="flex items-center mt-1">
+                                    <div class="bg-blue-200 rounded-md px-3 py-1 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 text-blue-800" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                        </svg>
+                                        <span class="text-blue-800 font-bold">zhangsan@company.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧信息 - 6格宽度 -->
+                    <div class="md:col-span-6">
+                        <div class="grid grid-cols-1 gap-2 h-full">
+                            <!-- 右上角日期 -->
+                            <div class="bg-blue-500 rounded-md p-3 text-center">
+                                <div class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">评估日期</div>
+                                <div class="text-white text-xl font-bold">2025年4月17日</div>
+                            </div>
+
+                            <!-- 中间等级 -->
+                            <div class="bg-blue-500 rounded-md p-3 text-center">
+                                <div class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">评估等级</div>
+                                <div class="inline-block bg-green-500 rounded-md px-4 py-1">
+                                    <span class="text-white text-xl font-bold">A级 (优秀)</span>
+                                </div>
+                            </div>
+
+                            <!-- 下方时长 -->
+                            <div class="bg-blue-500 rounded-md p-3 text-center">
+                                <div class="text-blue-100 text-sm font-medium uppercase tracking-wider mb-1">总测试时长</div>
+                                <div class="text-white font-bold flex items-center justify-center">
+                                    <!-- Updated total time based on example data -->
+                                    <span class="text-3xl mr-1">1</span>
+                                    <span class="text-lg mr-2">小时</span>
+                                    <span class="text-3xl mr-1">50</span>
+                                    <span class="text-lg">分钟</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报告耗时统计 -->
+        <div class="mb-10 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">测试时长统计:</h2>
+            <div class="space-y-4">
+                <!-- Item 1 -->
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">1</div>
+                            <span class="font-medium text-gray-800">新闻简报审核</span>
+                        </div>
+                        <span class="font-bold text-blue-700">19分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 86%"></div>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                 <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                           <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">2</div>
+                            <span class="font-medium text-gray-800">通用提示词</span>
+                        </div>
+                        <span class="font-bold text-blue-700">15分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 68%"></div>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">3</div>
+                            <span class="font-medium text-gray-800">异见报告审核</span>
+                        </div>
+                        <span class="font-bold text-blue-700">20分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 91%"></div>
+                    </div>
+                </div>
+                <!-- Item 4 -->
+                 <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">4</div>
+                            <span class="font-medium text-gray-800">需求澄清</span>
+                        </div>
+                        <span class="font-bold text-blue-700">16分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 73%"></div>
+                    </div>
+                </div>
+                <!-- Item 5 -->
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">5</div>
+                            <span class="font-medium text-gray-800">思维陷阱识别</span>
+                        </div>
+                        <span class="font-bold text-blue-700">18分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 82%"></div>
+                    </div>
+                </div>
+                <!-- Item 6 -->
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                           <div class="h-6 w-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium mr-3">6</div>
+                            <span class="font-medium text-gray-800">未知语言解析</span>
+                        </div>
+                        <span class="font-bold text-blue-700">22分钟</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-600 h-3 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报告选择模块 -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">选择报告查看:</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Buttons now call loadReport for modal -->
+                <button onclick="loadReport('product/000601.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    新闻简报审核
+                </button>
+                <button onclick="loadReport('product/000611.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    通用提示词
+                </button>
+                 <button onclick="loadReport('product/000321.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    异见报告审核
+                </button>
+                 <button onclick="loadReport('product/000311.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    需求澄清
+                </button>
+                 <button onclick="loadReport('product/000501.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    思维陷阱识别
+                </button>
+                 <button onclick="loadReport('product/000111.html')" class="report-button bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg flex items-center justify-center">
+                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    未知语言解析
+                </button>
+            </div>
+        </div>
+
+        <!-- Removed the original inline iframe section -->
+
+        <!-- 能力维度总论 -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-2xl font-bold text-center text-gray-800">能力维度表</h2>
+            </div>
+            
+            <div class="p-6">
+                <div class="space-y-10">
+                    <!-- 维度 1 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <!-- 左侧序号和竖线 -->
+                            <div class="flex flex-col items-center mr-6">
+                                <!-- 序号圆圈 -->
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #4338ca;">
+                                    1
+                                </div>
+                                
+                                <!-- 连接线 -->
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #4338ca30;"></div>
+                            </div>
+                            
+                            <!-- 右侧内容 -->
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <!-- 中文标题 -->
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        发现与自我理解
+                                    </h3>
+                                    
+                                    <!-- 英文标题 - 渐变色效果 -->
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #4338ca, #4338ca70); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Discovery & Self-Understanding
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 描述文本 -->
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #4338ca50;">
+                                    主动借助与AI的互动，澄清自身尚不明确的目标或想法。这体现了利用AI作为思考辅助工具，深化自我理解的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 2 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #1d4ed8;">
+                                    2
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #1d4ed830;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        迭代优化与反馈
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #1d4ed8, #1d4ed870); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Iterative Refinement & Feedback
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #1d4ed850;">
+                                    根据AI的反馈（输出结果）不断调整和优化指令（提示词）。这体现了在交互中通过试错和修正，逐步提升沟通效率和结果质量的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 3 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #7e22ce;">
+                                    3
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #7e22ce30;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        表达与转译
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #7e22ce, #7e22ce70); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Representation & Translation
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #7e22ce50;">
+                                    将内心模糊、抽象的想法或意图，清晰、准确地转译为AI能够理解和执行的具体指令。这体现了弥合人机认知差异，有效指导AI工作的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 4 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #0369a1;">
+                                    4
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #0369a130;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        选择与排序
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #0369a1, #0369a170); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Choosing & Prioritizing
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #0369a150;">
+                                    面对AI提供的多种可能性或自身存在的多个目标时，进行有效的评估、选择和优先级排序。这体现了在与AI协作中进行决策和管理复杂性的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 5 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #15803d;">
+                                    5
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #15803d30;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        探索式发现
+                                        <span class="ml-1 text-sm font-normal text-gray-600">（未知-未知）</span>
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #15803d, #15803d70); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Exploratory Discovery
+                                            <span class="ml-1 opacity-80">(Unknown-Unknowns)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #15803d50;">
+                                    利用与AI的交互，主动探索和识别那些最初未曾预见的问题、假设或知识领域。这体现了借助AI突破认知边界，进行开放式探索和创新的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 6 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #b45309;">
+                                    6
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #b4530930;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        自然语言世界建模
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #b45309, #b4530970); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            World Modeling in Natural Language
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #b4530950;">
+                                    构建关于复杂现实世界的准确心智模型，并能用清晰的自然语言将其传达给AI，使其理解背景知识或特定规则。这体现了用语言为AI构建工作上下文和知识框架的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 维度 7 -->
+                    <div class="group">
+                        <div class="flex items-start">
+                            <div class="flex flex-col items-center mr-6">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-lg shadow-sm" style="background-color: #b91c1c;">
+                                    7
+                                </div>
+                                <div class="w-0.5 flex-grow mt-2" style="background-color: #b91c1c30;"></div>
+                            </div>
+                            <div class="flex-1 pt-1">
+                                <div class="mb-3">
+                                    <h3 class="text-xl font-bold text-gray-800 flex items-baseline">
+                                        自我验证与人类信任
+                                    </h3>
+                                    <div class="relative">
+                                        <div class="text-sm tracking-wide mt-1 transition-all duration-500 ease-in-out" style="background-image: linear-gradient(90deg, #b91c1c, #b91c1c70); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                            Self-Verification & Human Trust
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pl-3 border-l-2 text-gray-700 leading-relaxed" style="border-color: #b91c1c50;">
+                                    对AI生成的内容进行批判性评估和核查，判断其是否准确、可靠并符合用户的真实意图。这体现了对AI输出质量进行把关，并在此基础上建立理性信任的能力。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 页脚 -->
+            <div class="p-4 text-center text-gray-500 text-sm bg-gray-50 border-t border-gray-100">
+                © 2025 AXIIA提示词能力测试
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal HTML Structure -->
+    <div id="modal-overlay">
+        <div id="modal-container">
+            <span id="modal-close-btn">&times;</span>
+            <iframe id="modal-iframe" src="" frameborder="0">您的浏览器不支持 iframe。</iframe>
+        </div>
+    </div>
+
+    <script>
+        // --- Modal JavaScript ---
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContainer = document.getElementById('modal-container');
+        const modalIframe = document.getElementById('modal-iframe');
+        const closeModalBtn = document.getElementById('modal-close-btn');
+
+        // Function called by the buttons' onclick attribute
+        function loadReport(reportUrl) {
+            if (modalIframe) {
+                modalIframe.src = reportUrl;
+            }
+            if (modalOverlay) {
+                modalOverlay.style.display = 'block';
+            }
+            if (modalContainer) {
+                modalContainer.style.display = 'flex'; // Match CSS 'display: flex'
+            }
+        }
+
+        // Function to hide the modal
+        function closeModal() {
+            if (modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+            if (modalContainer) {
+                modalContainer.style.display = 'none';
+            }
+            if (modalIframe) {
+                modalIframe.src = ''; // Clear src to stop loading/playing
+            }
+        }
+
+        // --- Event Listeners ---
+        // Close modal when the close button is clicked
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+
+        // Close modal when clicking on the overlay (outside the container)
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', function(event) {
+                // Ensure the click is on the overlay itself, not its children (the container)
+                if (event.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+        }
+        // --- End Modal JavaScript ---
+
+        // Optional: If you want to load a default report on page load (now in modal)
+        // window.onload = () => {
+        //     loadReport('product/000601.html');
+        // };
+    </script>
+
+</body>
+</html>

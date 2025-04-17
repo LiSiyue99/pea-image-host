@@ -1,0 +1,20 @@
+[
+  {
+    "chat_id": "882d43d8-4c6d-445c-9458-054ecfc52a5b",
+    "id": "63bc966e-8479-476f-b003-c6c50d0024a7",
+    "content": "请帮我找出 @main.ts 的错误",
+    "context": "[{\"path\":\"main.ts\",\"version\":1}]",
+    "timestamp": 1742171805498,
+    "readable_time": "2025-03-17 08:36:45",
+    "file_source": "/Users/siyue/Downloads/Lenovo/05/messages_export_0.json"
+  },
+  {
+    "chat_id": "882d43d8-4c6d-445c-9458-054ecfc52a5b",
+    "id": "028c1a95-4bb0-4b73-bef4-479e30d7495e",
+    "content": "请找出 @main.ts 的错误\n",
+    "context": "[{\"path\":\"main.ts\",\"version\":2}]",
+    "timestamp": 1742691335813,
+    "readable_time": "2025-03-23 08:55:35",
+    "file_source": "/Users/siyue/Downloads/Lenovo/05/messages_export_0.json"
+  }
+]
