@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 2024-06-09 代码更新记录
+
+### 删除未使用变量
+
+- 文件：`components/mockData.js`
+- 操作：删除了 `goalBelongsOptions`、`goalConsensusOptions`、`goalConfirmationOptions` 三个未被使用的变量。
+- 原因：这些变量未在代码中被引用，且在构建时会被 ESLint 检查报错。删除后可保证构建顺利通过，代码更整洁。
+
+---

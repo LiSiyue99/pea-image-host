@@ -10,10 +10,6 @@ const hasPositiveRegardOptions = ['是', '否'];
 const actualPositiveRegardTargetOptions = ['家长', '孩子', '两个都有'];
 const positiveRegardAccuracyOptions = ['是', '否'];
 
-const goalBelongsOptions = ['属于', '不属于'];
-const goalConsensusOptions = ['努力达成共识', '没有努力达成共识'];
-const goalConfirmationOptions = ['确认了具体目标', '没有确认具体目标'];
-
 const dialogueExamples = [
   "家长：我实在是管不了他了，叛逆期太可怕了。教练：听起来这段时间和孩子的相处让你感到很困扰。能不能跟我具体说说最近发生了什么事让你这么担心？",
   "家长：他现在就知道玩游戏，我说了多少次了还是不听。教练：我能感受到你的担忧和焦虑。如果方便的话，能描述一下具体是什么游戏以及他玩游戏的频率和时长吗？",
