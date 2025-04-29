@@ -12,11 +12,8 @@ export function DialogueQualityPanel() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
-  const handleGenerate = async (_generationPrompt: string, _evalPrompt: string) => {
-    // 参数在实际API集成时使用，当前为模拟数据
-    // _generationPrompt - 生成对话的提示词
-    // _evalPrompt - 评估对话的提示词
-    
+  const handleGenerate = async () => {
+    // 注意：在实际API集成时，将从表单获取这些值
     setIsGenerating(true);
     setIsEvaluating(true);
     setDialogue([]);

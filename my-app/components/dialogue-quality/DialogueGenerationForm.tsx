@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Textarea } from '../ui/textarea';
 
 interface DialogueGenerationFormProps {
-  onGenerate: (generationPrompt: string, evalPrompt: string) => void;
+  onGenerate: () => void;
   isLoading: boolean;
 }
 
@@ -16,7 +16,8 @@ export function DialogueGenerationForm({ onGenerate, isLoading }: DialogueGenera
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onGenerate(generationPrompt, evalPrompt);
+    // 将来实现真实API时可以从此处传递参数
+    onGenerate();
   };
 
   return (
