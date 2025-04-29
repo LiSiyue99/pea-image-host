@@ -10,8 +10,9 @@ export function SimulateDialoguePanel() {
   const [messages, setMessages] = useState<DialogueMessage[]>([]);
   const [isDialogueActive, setIsDialogueActive] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [coachPrompt, setCoachPrompt] = useState('');
-  const [userPrompt, setUserPrompt] = useState('');
+  // 当前暂时未使用的状态，将来会用于实际API调用
+  const [, setCoachPrompt] = useState('');
+  const [, setUserPrompt] = useState('');
   
   // 用于存储对话生成的定时器ID
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
