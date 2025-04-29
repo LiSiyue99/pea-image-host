@@ -14,7 +14,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-10 px-2">
       <div className="container mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold mb-6 text-center tracking-tight">人类与AI评估结果比较</h1>
         <EvalTabs tab={tab} setTab={setTab} />
         <PromptSection tab={tab} />
         <AccuracyCards tab={tab} data={mockData} />
